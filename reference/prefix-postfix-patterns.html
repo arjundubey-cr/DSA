@@ -1,0 +1,116 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>Prefix / Postfix Patterns — Reference</title>
+  <style>
+    :root {
+      --bg:#fafaf8;--surface:#fff;--border:#e8e6e0;--text:#1a1a1a;--muted:#6b6b6b;
+      --accent:#2563eb;--accent-light:#eff6ff;--green:#16a34a;--green-light:#f0fdf4;
+      --purple:#7c3aed;--purple-light:#f5f3ff;--code-bg:#f4f3ef;
+      --mono:'JetBrains Mono','Fira Code',monospace;
+    }
+    @media(prefers-color-scheme:dark){
+      :root{--bg:#141413;--surface:#1e1e1c;--border:#2e2e2b;--text:#e8e6e0;--muted:#8a8880;
+      --accent:#60a5fa;--accent-light:#1e3a5f;--green:#4ade80;--green-light:#052e16;
+      --purple:#a78bfa;--purple-light:#2e1065;--code-bg:#252522;}
+    }
+    *{box-sizing:border-box;margin:0;padding:0}
+    body{background:var(--bg);color:var(--text);font-family:var(--mono);font-size:13px;
+    line-height:1.6;max-width:900px;margin:0 auto;padding:2rem 1.5rem 4rem}
+    h1{font-size:1.1rem;font-weight:700;margin-bottom:0.25rem}
+    .subtitle{color:var(--muted);font-size:0.78rem;margin-bottom:2rem}
+    h2{font-size:0.78rem;text-transform:uppercase;letter-spacing:0.08em;color:var(--muted);
+    margin:2rem 0 0.75rem;padding-bottom:0.3rem;border-bottom:1px solid var(--border)}
+    .grid{display:grid;grid-template-columns:1fr 1fr;gap:1rem}
+    @media(max-width:600px){.grid{grid-template-columns:1fr}}
+    .card{background:var(--surface);border:1px solid var(--border);border-radius:8px;padding:1rem}
+    .card-title{font-weight:700;font-size:0.82rem;margin-bottom:0.5rem;color:var(--accent)}
+    .card-title.purple{color:var(--purple)}
+    .card-title.green{color:var(--green)}
+    pre{background:var(--code-bg);border-radius:5px;padding:0.75rem;overflow-x:auto;
+    font-size:0.78rem;line-height:1.55;margin:0.5rem 0}
+    .complexity{display:flex;gap:1rem;font-size:0.75rem;color:var(--muted);margin-top:0.4rem}
+    .complexity span{background:var(--code-bg);padding:0.1rem 0.4rem;border-radius:3px}
+    table{width:100%;border-collapse:collapse;font-size:0.78rem;margin-top:0.5rem}
+    th{text-align:left;padding:0.4rem 0.5rem;border-bottom:1px solid var(--border);color:var(--muted)}
+    td{padding:0.4rem 0.5rem;border-bottom:1px solid var(--border)}
+    .cell-l{background:var(--accent-light);color:var(--accent);font-weight:700;text-align:center}
+    .cell-r{background:var(--purple-light);color:var(--purple);font-weight:700;text-align:center}
+    .cell-o{background:var(--green-light);color:var(--green);font-weight:700;text-align:center}
+    .note{color:var(--muted);font-size:0.75rem;margin-top:0.3rem}
+    a{color:var(--accent);text-decoration:none}
+  </style>
+</head>
+<body>
+
+<h1>Prefix / Postfix Patterns</h1>
+<div class="subtitle">Arrays · Reference Sheet</div>
+
+<h2>Core Concept</h2>
+<div class="card" style="margin-bottom:1rem">
+  <div class="card-title green">output[i] = prefix[i] × postfix[i]</div>
+  <p style="font-size:0.82rem;margin:0.4rem 0">prefix[i] = product of all elements <strong>left</strong> of i (exclusive)<br>
+  postfix[i] = product of all elements <strong>right</strong> of i (exclusive)<br>
+  Empty product = 1 (boundary cases at i=0 and i=n-1)</p>
+</div>
+
+<h2>Visual — nums = [1, 2, 3, 4]</h2>
+<table>
+  <tr><th></th><th>i=0</th><th>i=1</th><th>i=2</th><th>i=3</th></tr>
+  <tr><td>nums</td><td>1</td><td>2</td><td>3</td><td>4</td></tr>
+  <tr><td>prefix (left)</td><td class="cell-l">1</td><td class="cell-l">1</td><td class="cell-l">2</td><td class="cell-l">6</td></tr>
+  <tr><td>postfix (right)</td><td class="cell-r">24</td><td class="cell-r">12</td><td class="cell-r">4</td><td class="cell-r">1</td></tr>
+  <tr><td>output</td><td class="cell-o">24</td><td class="cell-o">12</td><td class="cell-o">8</td><td class="cell-o">6</td></tr>
+</table>
+
+<h2>Implementations</h2>
+<div class="grid">
+  <div class="card">
+    <div class="card-title">Two arrays (clear)</div>
+    <pre>left  = [1] * n
+right = [1] * n
+for i in range(1, n):
+    left[i] = left[i-1] * nums[i-1]
+for i in range(n-2, -1, -1):
+    right[i] = right[i+1] * nums[i+1]
+return [left[i]*right[i] for i in range(n)]</pre>
+    <div class="complexity"><span>Time: O(n)</span><span>Space: O(n)</span></div>
+  </div>
+  <div class="card">
+    <div class="card-title green">Two-pass optimal ← use this</div>
+    <pre>output = [1] * n
+prefix = 1
+for i in range(n):
+    output[i] = prefix
+    prefix *= nums[i]
+
+postfix = 1
+for i in range(n-1, -1, -1):
+    output[i] *= postfix
+    postfix *= nums[i]
+return output</pre>
+    <div class="complexity"><span>Time: O(n)</span><span>Space: O(1) extra</span></div>
+  </div>
+</div>
+
+<h2>Key Rules</h2>
+<table>
+  <tr><th>Rule</th><th>Detail</th></tr>
+  <tr><td>Write before update</td><td>In left pass: store prefix first, then multiply. Else you include nums[i] itself.</td></tr>
+  <tr><td>Empty product = 1</td><td>prefix starts at 1; postfix starts at 1. Handles boundary indices correctly.</td></tr>
+  <tr><td>Handles zeros</td><td>No division — zeros propagate naturally through multiplication.</td></tr>
+  <tr><td>Output array is free</td><td>"O(1) extra space" excludes the required output array by convention.</td></tr>
+</table>
+
+<h2>Related Problems</h2>
+<table>
+  <tr><th>Problem</th><th>Pattern</th></tr>
+  <tr><td><a href="../lessons/0002-product-of-array-except-self.html">238. Product of Array Except Self</a></td><td>Prefix × postfix product</td></tr>
+  <tr><td>42. Trapping Rain Water</td><td>Max from left × max from right (same two-pass shape)</td></tr>
+  <tr><td>560. Subarray Sum Equals K</td><td>Prefix sums + hashmap</td></tr>
+  <tr><td>724. Find Pivot Index</td><td>Prefix sum left == total − prefix sum right</td></tr>
+</table>
+
+</body>
+</html>

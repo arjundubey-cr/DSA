@@ -1,0 +1,114 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>Frequency Patterns — Reference</title>
+  <style>
+    :root {
+      --bg:#fafaf8;--surface:#fff;--border:#e8e6e0;--text:#1a1a1a;--muted:#6b6b6b;
+      --accent:#2563eb;--accent-light:#eff6ff;--green:#16a34a;--code-bg:#f4f3ef;
+      --mono:'JetBrains Mono','Fira Code',monospace;
+    }
+    @media(prefers-color-scheme:dark){
+      :root{--bg:#141413;--surface:#1e1e1c;--border:#2e2e2b;--text:#e8e6e0;--muted:#8a8880;
+      --accent:#60a5fa;--accent-light:#1e3a5f;--green:#4ade80;--code-bg:#252522;}
+    }
+    *{box-sizing:border-box;margin:0;padding:0}
+    body{background:var(--bg);color:var(--text);font-family:var(--mono);font-size:13px;
+    line-height:1.6;max-width:900px;margin:0 auto;padding:2rem 1.5rem 4rem}
+    h1{font-size:1.1rem;font-weight:700;margin-bottom:0.25rem}
+    .subtitle{color:var(--muted);font-size:0.78rem;margin-bottom:2rem}
+    h2{font-size:0.78rem;text-transform:uppercase;letter-spacing:0.08em;color:var(--muted);
+    margin:2rem 0 0.75rem;padding-bottom:0.3rem;border-bottom:1px solid var(--border)}
+    .grid{display:grid;grid-template-columns:1fr 1fr;gap:1rem}
+    @media(max-width:600px){.grid{grid-template-columns:1fr}}
+    .card{background:var(--surface);border:1px solid var(--border);border-radius:8px;padding:1rem}
+    .card-title{font-weight:700;font-size:0.82rem;margin-bottom:0.5rem;color:var(--accent)}
+    pre{background:var(--code-bg);border-radius:5px;padding:0.75rem;overflow-x:auto;
+    font-size:0.78rem;line-height:1.55;margin:0.5rem 0}
+    .complexity{display:flex;gap:1rem;font-size:0.75rem;color:var(--muted);margin-top:0.4rem}
+    .complexity span{background:var(--code-bg);padding:0.1rem 0.4rem;border-radius:3px}
+    table{width:100%;border-collapse:collapse;font-size:0.78rem;margin-top:0.5rem}
+    th{text-align:left;padding:0.4rem 0.5rem;border-bottom:1px solid var(--border);color:var(--muted)}
+    td{padding:0.4rem 0.5rem;border-bottom:1px solid var(--border)}
+    .note{color:var(--muted);font-size:0.75rem;margin-top:0.3rem}
+    a{color:var(--accent);text-decoration:none}
+  </style>
+</head>
+<body>
+
+<h1>Frequency Patterns</h1>
+<div class="subtitle">Arrays &amp; Hashing · Reference Sheet</div>
+
+<h2>Counting Frequencies</h2>
+<div class="grid">
+  <div class="card">
+    <div class="card-title">Manual dict</div>
+    <pre>count = {}
+for n in nums:
+    count[n] = count.get(n, 0) + 1</pre>
+    <div class="note">Explicit. Works anywhere. Use when you need dict comprehension control.</div>
+  </div>
+  <div class="card">
+    <div class="card-title">Counter shorthand</div>
+    <pre>from collections import Counter
+count = Counter(nums)
+# count.most_common(k) → top k
+# count[x] → freq of x (0 if absent)</pre>
+    <div class="note">O(n log k) for most_common. Fine in interviews unless O(n) required.</div>
+  </div>
+</div>
+
+<h2>Top K Frequent — Three Approaches</h2>
+<div class="grid">
+  <div class="card">
+    <div class="card-title">Sort (naive)</div>
+    <pre>sorted(count, key=lambda x: count[x],
+       reverse=True)[:k]</pre>
+    <div class="complexity"><span>Time: O(n log n)</span><span>Space: O(n)</span></div>
+  </div>
+  <div class="card">
+    <div class="card-title">Min-heap</div>
+    <pre>import heapq
+heapq.nlargest(k, count, key=count.get)
+# or maintain heap of size k manually</pre>
+    <div class="complexity"><span>Time: O(n log k)</span><span>Space: O(n+k)</span></div>
+  </div>
+  <div class="card" style="grid-column:1/-1">
+    <div class="card-title">Bucket sort ← O(n) optimal</div>
+    <pre>freq = [[] for _ in range(len(nums) + 1)]
+for n, c in count.items():
+    freq[c].append(n)
+
+res = []
+for i in range(len(freq) - 1, 0, -1):
+    for n in freq[i]:
+        res.append(n)
+        if len(res) == k:
+            return res</pre>
+    <div class="complexity"><span>Time: O(n)</span><span>Space: O(n)</span></div>
+    <div class="note" style="margin-top:0.5rem">Key insight: frequency ≤ n, so use freq as index. Avoids sorting entirely.</div>
+  </div>
+</div>
+
+<h2>Complexity Comparison</h2>
+<table>
+  <tr><th>Approach</th><th>Time</th><th>Space</th><th>When to use</th></tr>
+  <tr><td>Sort</td><td>O(n log n)</td><td>O(n)</td><td>Never in interviews (suboptimal)</td></tr>
+  <tr><td>Counter.most_common</td><td>O(n log k)</td><td>O(n)</td><td>Quick solutions; heapq under the hood</td></tr>
+  <tr><td>Min-heap</td><td>O(n log k)</td><td>O(n+k)</td><td>Good when k ≪ n; shows heap knowledge</td></tr>
+  <tr><td>Bucket sort</td><td>O(n)</td><td>O(n)</td><td>Optimal; use when O(n) required</td></tr>
+</table>
+
+<h2>Related Problems</h2>
+<table>
+  <tr><th>Problem</th><th>Core Pattern</th></tr>
+  <tr><td><a href="../lessons/0001-top-k-frequent-elements.html">347. Top K Frequent Elements</a></td><td>Bucket sort by frequency</td></tr>
+  <tr><td>692. Top K Frequent Words</td><td>Heap with custom comparator (ties: lexicographic)</td></tr>
+  <tr><td>451. Sort Characters By Frequency</td><td>Same bucket sort; rebuild string</td></tr>
+  <tr><td>242. Valid Anagram</td><td>Frequency diff map</td></tr>
+  <tr><td>49. Group Anagrams</td><td>Frequency tuple as hashmap key</td></tr>
+</table>
+
+</body>
+</html>

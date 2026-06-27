@@ -1,0 +1,464 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>238 · Product of Array Except Self</title>
+  <style>
+    :root {
+      --bg: #fafaf8; --surface: #ffffff; --border: #e8e6e0;
+      --text: #1a1a1a; --muted: #6b6b6b; --accent: #2563eb;
+      --accent-light: #eff6ff; --green: #16a34a; --green-light: #f0fdf4;
+      --red: #dc2626; --red-light: #fef2f2; --yellow: #d97706;
+      --yellow-light: #fffbeb; --purple: #7c3aed; --purple-light: #f5f3ff;
+      --code-bg: #f4f3ef;
+      --mono: 'JetBrains Mono','Fira Code','Cascadia Code',monospace;
+      --sans: system-ui,-apple-system,sans-serif;
+    }
+    @media (prefers-color-scheme: dark) {
+      :root {
+        --bg:#141413; --surface:#1e1e1c; --border:#2e2e2b;
+        --text:#e8e6e0; --muted:#8a8880; --accent:#60a5fa;
+        --accent-light:#1e3a5f; --green:#4ade80; --green-light:#052e16;
+        --red:#f87171; --red-light:#3b0000; --yellow:#fbbf24;
+        --yellow-light:#2d1f00; --purple:#a78bfa; --purple-light:#2e1065;
+        --code-bg:#252522;
+      }
+    }
+    *{box-sizing:border-box;margin:0;padding:0}
+    body {
+      background:var(--bg); color:var(--text); font-family:var(--sans);
+      font-size:17px; line-height:1.7; max-width:740px;
+      margin:0 auto; padding:3rem 1.5rem 6rem;
+    }
+    .lesson-meta {
+      font-family:var(--mono); font-size:0.75rem; color:var(--muted);
+      letter-spacing:0.08em; text-transform:uppercase; margin-bottom:0.4rem;
+    }
+    h1 { font-size:2rem; font-weight:700; letter-spacing:-0.02em; line-height:1.2; margin-bottom:0.5rem; }
+    .tags { display:flex; gap:0.5rem; flex-wrap:wrap; margin:0.75rem 0 2rem; }
+    .tag {
+      font-family:var(--mono); font-size:0.7rem; padding:0.2rem 0.6rem;
+      border-radius:999px; border:1px solid var(--border); color:var(--muted); letter-spacing:0.04em;
+    }
+    .tag.medium { border-color:var(--yellow); color:var(--yellow); }
+    .tag.pattern { border-color:var(--accent); color:var(--accent); }
+    h2 { font-size:1.25rem; font-weight:700; margin:2.5rem 0 0.75rem; padding-top:0.5rem; }
+    p { margin-bottom:1rem; }
+    strong { font-weight:600; }
+    em { font-style:italic; }
+    a { color:var(--accent); text-decoration:none; }
+    a:hover { text-decoration:underline; }
+    ol,ul { padding-left:1.5rem; margin-bottom:1rem; }
+    li { margin-bottom:0.2rem; }
+
+    .problem-box {
+      background:var(--surface); border:1px solid var(--border);
+      border-radius:10px; padding:1.25rem 1.5rem; margin:1.25rem 0;
+    }
+    .problem-box .label {
+      font-family:var(--mono); font-size:0.7rem; color:var(--muted);
+      text-transform:uppercase; letter-spacing:0.08em; margin-bottom:0.4rem;
+    }
+    .example-grid { display:grid; grid-template-columns:1fr 1fr; gap:1rem; margin-top:0.75rem; }
+    @media(max-width:520px){.example-grid{grid-template-columns:1fr}}
+    .example {
+      background:var(--code-bg); border-radius:6px; padding:0.75rem 1rem;
+      font-family:var(--mono); font-size:0.82rem;
+    }
+    .example .ex-label { color:var(--muted); margin-bottom:0.2rem; }
+
+    pre {
+      background:var(--code-bg); border-radius:8px; padding:1.25rem 1.5rem;
+      overflow-x:auto; margin:1rem 0; font-family:var(--mono);
+      font-size:0.85rem; line-height:1.6; tab-size:4;
+    }
+    code { font-family:var(--mono); font-size:0.85em; background:var(--code-bg); padding:0.1em 0.3em; border-radius:3px; }
+    pre code { background:none; padding:0; font-size:1em; }
+    .kw { color:#7c3aed; }
+    .kw2 { color:#0369a1; }
+    @media(prefers-color-scheme:dark){ .kw{color:#a78bfa} .kw2{color:#38bdf8} }
+    .cm { color:var(--muted); font-style:italic; }
+    .nm { color:var(--green); }
+    .st { color:var(--yellow); }
+
+    .callout {
+      border-left:3px solid var(--accent); background:var(--accent-light);
+      padding:0.9rem 1.25rem; border-radius:0 8px 8px 0; margin:1.25rem 0;
+    }
+    .callout.insight { border-color:var(--green); background:var(--green-light); }
+    .callout.warning { border-color:var(--yellow); background:var(--yellow-light); }
+    .callout .callout-title {
+      font-family:var(--mono); font-size:0.72rem; font-weight:700;
+      text-transform:uppercase; letter-spacing:0.08em; margin-bottom:0.3rem; color:var(--accent);
+    }
+    .callout.insight .callout-title { color:var(--green); }
+    .callout.warning .callout-title { color:var(--yellow); }
+
+    /* ── Prefix/Suffix table ── */
+    .vis-table-wrap {
+      overflow-x:auto; margin:1.25rem 0;
+    }
+    .vis-table {
+      border-collapse:collapse; font-family:var(--mono); font-size:0.82rem;
+      width:100%; min-width:400px;
+    }
+    .vis-table th {
+      background:var(--code-bg); padding:0.5rem 0.75rem;
+      border:1px solid var(--border); font-weight:600; color:var(--muted);
+      text-align:center; font-size:0.72rem; text-transform:uppercase; letter-spacing:0.06em;
+    }
+    .vis-table td {
+      padding:0.5rem 0.75rem; border:1px solid var(--border);
+      text-align:center;
+    }
+    .vis-table tr.row-label td:first-child {
+      text-align:left; font-weight:600; color:var(--muted); font-size:0.78rem; white-space:nowrap;
+    }
+    .cell-left  { background:var(--accent-light); color:var(--accent); font-weight:700; }
+    .cell-right { background:var(--purple-light); color:var(--purple); font-weight:700; }
+    .cell-out   { background:var(--green-light);  color:var(--green);  font-weight:700; }
+    .cell-nums  { font-weight:700; }
+
+    .anno-list { list-style:none; margin:0.5rem 0 1rem; }
+    .anno-list li {
+      display:flex; gap:0.75rem; padding:0.4rem 0;
+      border-bottom:1px solid var(--border); font-size:0.92rem;
+    }
+    .anno-list li:last-child { border-bottom:none; }
+    .anno-num {
+      font-family:var(--mono); font-size:0.75rem; color:var(--accent);
+      font-weight:700; min-width:1.5rem; padding-top:0.2rem;
+    }
+
+    table.cmp {
+      width:100%; border-collapse:collapse; margin:1rem 0;
+      font-family:var(--mono); font-size:0.82rem;
+    }
+    table.cmp th {
+      text-align:left; padding:0.5rem 0.75rem; background:var(--code-bg);
+      font-weight:600; border-bottom:1px solid var(--border);
+    }
+    table.cmp td { padding:0.5rem 0.75rem; border-bottom:1px solid var(--border); }
+
+    /* ── Quiz ── */
+    .quiz-section {
+      background:var(--surface); border:1px solid var(--border);
+      border-radius:12px; padding:1.5rem; margin:2rem 0;
+    }
+    .quiz-section h2 { margin-top:0; padding-top:0; }
+    .quiz-q { margin-bottom:1.5rem; padding-bottom:1.5rem; border-bottom:1px solid var(--border); }
+    .quiz-q:last-child { border-bottom:none; margin-bottom:0; padding-bottom:0; }
+    .quiz-prompt { font-weight:600; margin-bottom:0.75rem; }
+    .quiz-prompt code { font-weight:normal; }
+    .options { display:grid; grid-template-columns:1fr 1fr; gap:0.5rem; }
+    @media(max-width:520px){.options{grid-template-columns:1fr}}
+    .opt {
+      font-family:var(--mono); font-size:0.82rem; padding:0.6rem 0.9rem;
+      border:1px solid var(--border); border-radius:7px; cursor:pointer;
+      background:var(--bg); color:var(--text); text-align:left;
+      transition:border-color 0.1s,background 0.1s; line-height:1.4;
+    }
+    .opt:hover:not(:disabled) { border-color:var(--accent); background:var(--accent-light); }
+    .opt.correct { border-color:var(--green)!important; background:var(--green-light)!important; color:var(--green)!important; }
+    .opt.wrong   { border-color:var(--red)!important;   background:var(--red-light)!important;   color:var(--red)!important; }
+    .opt:disabled { cursor:default; opacity:0.85; }
+    .feedback { margin-top:0.6rem; font-size:0.88rem; min-height:1.2em; color:var(--muted); }
+    .feedback.correct { color:var(--green); }
+    .feedback.wrong   { color:var(--red); }
+
+    .footer {
+      margin-top:4rem; padding-top:1.5rem; border-top:1px solid var(--border);
+      font-size:0.82rem; color:var(--muted);
+    }
+    .footer a { color:var(--muted); }
+    .next-link {
+      display:inline-flex; align-items:center; gap:0.4rem; margin-top:0.75rem;
+      font-family:var(--mono); font-size:0.78rem; color:var(--accent);
+      border:1px solid var(--accent); padding:0.4rem 0.9rem; border-radius:6px;
+    }
+    .next-link:hover { background:var(--accent-light); text-decoration:none; }
+    hr.divider { border:none; border-top:1px solid var(--border); margin:2rem 0; }
+
+    .two-col { display:grid; grid-template-columns:1fr 1fr; gap:1rem; margin:1rem 0; }
+    @media(max-width:520px){.two-col{grid-template-columns:1fr}}
+    .mini-card {
+      background:var(--surface); border:1px solid var(--border);
+      border-radius:8px; padding:0.9rem 1.1rem;
+    }
+    .mini-card .mc-label {
+      font-family:var(--mono); font-size:0.7rem; color:var(--muted);
+      text-transform:uppercase; letter-spacing:0.07em; margin-bottom:0.4rem;
+    }
+  </style>
+</head>
+<body>
+
+  <div class="lesson-meta">Lesson 002 · Arrays &amp; Hashing</div>
+  <h1>238. Product of Array Except Self</h1>
+  <div class="tags">
+    <span class="tag medium">Medium</span>
+    <span class="tag pattern">Prefix Product</span>
+    <span class="tag pattern">Postfix Product</span>
+    <span class="tag">O(n) · No division</span>
+  </div>
+
+  <!-- ── Problem ── -->
+  <h2>The Problem</h2>
+  <div class="problem-box">
+    <div class="label">Problem Statement</div>
+    <p style="margin:0.5rem 0 0.75rem">
+      Given an integer array <code>nums</code>, return an array <code>output</code> such that
+      <code>output[i]</code> is equal to the product of all elements of <code>nums</code> <strong>except</strong> <code>nums[i]</code>.
+      Must run in <strong>O(n)</strong> time. <strong>No division.</strong>
+    </p>
+    <div class="example-grid">
+      <div class="example">
+        <div class="ex-label">Example 1</div>
+        Input:  [1, 2, 3, 4]<br>
+        Output: [24, 12, 8, 6]
+      </div>
+      <div class="example">
+        <div class="ex-label">Example 2</div>
+        Input:  [-1, 1, 0, -3, 3]<br>
+        Output: [0, 0, 9, 0, 0]
+      </div>
+    </div>
+    <p style="margin-top:0.75rem;margin-bottom:0;font-size:0.85rem;color:var(--muted)">
+      Constraints: 2 ≤ nums.length ≤ 10<sup>5</sup> &nbsp;·&nbsp;
+      Follow-up: O(1) extra space (output array doesn't count)
+    </p>
+  </div>
+
+  <!-- ── Why not division ── -->
+  <h2>Step 1 — Why Can't We Just Divide?</h2>
+
+  <p>Instinct: compute total product, then <code>output[i] = total / nums[i]</code>. Two reasons this breaks:</p>
+  <ol>
+    <li><strong>Division by zero</strong> — any zero in <code>nums</code> kills it</li>
+    <li><strong>Constraint</strong> — problem explicitly forbids division</li>
+  </ol>
+
+  <p>So we need a different way to express "product of everything except <code>i</code>".</p>
+
+  <!-- ── Key insight ── -->
+  <h2>Step 2 — The Insight</h2>
+
+  <div class="callout insight">
+    <div class="callout-title">Core Insight</div>
+    For any index <code>i</code>:<br><br>
+    <code>output[i] = (product of everything LEFT of i) × (product of everything RIGHT of i)</code><br><br>
+    We can compute both halves in two passes. No division needed.
+  </div>
+
+  <!-- ── Visualization ── -->
+  <h2>Step 3 — See It</h2>
+  <p>For <code>nums = [1, 2, 3, 4]</code>:</p>
+
+  <div class="vis-table-wrap">
+    <table class="vis-table">
+      <tr>
+        <th></th>
+        <th>i=0</th><th>i=1</th><th>i=2</th><th>i=3</th>
+      </tr>
+      <tr class="row-label">
+        <td>nums</td>
+        <td class="cell-nums">1</td>
+        <td class="cell-nums">2</td>
+        <td class="cell-nums">3</td>
+        <td class="cell-nums">4</td>
+      </tr>
+      <tr class="row-label">
+        <td>LEFT product</td>
+        <td class="cell-left">1</td>
+        <td class="cell-left">1</td>
+        <td class="cell-left">1×2=2</td>
+        <td class="cell-left">1×2×3=6</td>
+      </tr>
+      <tr class="row-label">
+        <td>RIGHT product</td>
+        <td class="cell-right">2×3×4=24</td>
+        <td class="cell-right">3×4=12</td>
+        <td class="cell-right">4</td>
+        <td class="cell-right">1</td>
+      </tr>
+      <tr class="row-label">
+        <td>output = L × R</td>
+        <td class="cell-out">1×24=24</td>
+        <td class="cell-out">1×12=12</td>
+        <td class="cell-out">2×4=8</td>
+        <td class="cell-out">6×1=6</td>
+      </tr>
+    </table>
+  </div>
+
+  <p>
+    LEFT at <code>i=0</code> is <code>1</code> (nothing to the left — empty product).
+    RIGHT at <code>i=3</code> is <code>1</code> (nothing to the right — empty product).
+  </p>
+
+  <!-- ── Algorithm ── -->
+  <h2>Step 4 — The Algorithm</h2>
+
+  <p>Naive implementation: build two full arrays, then multiply. Works but uses O(n) extra space.</p>
+
+  <pre><code><span class="cm"># Naive — O(n) space (two extra arrays)</span>
+<span class="kw">def</span> <span class="nm">productExceptSelf</span>(self, nums):
+    n = len(nums)
+    left  = [<span class="st">1</span>] * n
+    right = [<span class="st">1</span>] * n
+
+    <span class="kw">for</span> i <span class="kw">in</span> range(<span class="st">1</span>, n):
+        left[i] = left[i-<span class="st">1</span>] * nums[i-<span class="st">1</span>]
+    <span class="kw">for</span> i <span class="kw">in</span> range(n-<span class="st">2</span>, -<span class="st">1</span>, -<span class="st">1</span>):
+        right[i] = right[i+<span class="st">1</span>] * nums[i+<span class="st">1</span>]
+
+    <span class="kw">return</span> [left[i] * right[i] <span class="kw">for</span> i <span class="kw">in</span> range(n)]</code></pre>
+
+  <p>Optimize: skip the <code>left[]</code> and <code>right[]</code> arrays. Use the output array itself plus a running variable.</p>
+
+  <pre><code><span class="cm"># Optimal — O(1) extra space</span>
+<span class="kw">def</span> <span class="nm">productExceptSelf</span>(self, nums):
+    n = len(nums)
+    output = [<span class="st">1</span>] * n          <span class="cm"># ①</span>
+
+    prefix = <span class="st">1</span>
+    <span class="kw">for</span> i <span class="kw">in</span> range(n):       <span class="cm"># ②</span>
+        output[i] = prefix
+        prefix *= nums[i]
+
+    postfix = <span class="st">1</span>
+    <span class="kw">for</span> i <span class="kw">in</span> range(n-<span class="st">1</span>, -<span class="st">1</span>, -<span class="st">1</span>):  <span class="cm"># ③</span>
+        output[i] *= postfix
+        postfix *= nums[i]
+
+    <span class="kw">return</span> output</code></pre>
+
+  <ul class="anno-list">
+    <li><span class="anno-num">①</span><span>Output starts as all 1s — neutral for multiplication. We fill left products in pass ②, then multiply by right products in pass ③.</span></li>
+    <li><span class="anno-num">②</span><span>Left pass. Before touching index <code>i</code>, <code>prefix</code> holds the product of <code>nums[0..i-1]</code>. Write it to <code>output[i]</code>, then update <code>prefix</code>. At <code>i=0</code>, prefix is 1 (empty product). Correct.</span></li>
+    <li><span class="anno-num">③</span><span>Right pass — reverse. Before touching index <code>i</code>, <code>postfix</code> holds the product of <code>nums[i+1..n-1]</code>. Multiply into <code>output[i]</code> (which already holds the left product). Then update <code>postfix</code>.</span></li>
+  </ul>
+
+  <div class="callout">
+    <div class="callout-title">Why Two Passes?</div>
+    Each pass runs the loop once — O(n). Two passes = 2×O(n) = O(n). No nested loops, no sorting. The <code>prefix</code> and <code>postfix</code> variables are O(1) extra space; only the output array scales with input.
+  </div>
+
+  <!-- ── Trace ── -->
+  <h2>Step 5 — Trace It</h2>
+  <p>Manually trace both passes for <code>nums = [2, 3, 4, 5]</code>:</p>
+  <div class="two-col">
+    <div class="mini-card">
+      <div class="mc-label">After left pass</div>
+      What is <code>output</code>?<br>
+      What is <code>prefix</code> at the end?
+    </div>
+    <div class="mini-card">
+      <div class="mc-label">After right pass</div>
+      What is the final <code>output</code>?<br>
+      Verify: output[1] = 2×4×5 = 40?
+    </div>
+  </div>
+  <p><em>Expected: <code>[60, 40, 30, 24]</code></em></p>
+
+  <table class="cmp">
+    <tr><th>Approach</th><th>Time</th><th>Space</th><th>Notes</th></tr>
+    <tr><td>Divide total</td><td>O(n)</td><td>O(1)</td><td>Fails on zeros; not allowed</td></tr>
+    <tr><td>Two arrays (L, R)</td><td>O(n)</td><td>O(n)</td><td>Clear but wastes space</td></tr>
+    <tr><td>Two-pass (optimal) ✓</td><td><strong>O(n)</strong></td><td><strong>O(1)</strong></td><td>Output array + two vars</td></tr>
+  </table>
+
+  <hr class="divider">
+
+  <!-- ── Quiz ── -->
+  <div class="quiz-section">
+    <h2>Retrieval Practice</h2>
+    <p style="font-size:0.88rem;color:var(--muted);margin-bottom:1.5rem">Recall first. Then check.</p>
+
+    <!-- Q1 -->
+    <div class="quiz-q" id="q1">
+      <div class="quiz-prompt">For <code>nums = [1,2,3,4]</code>, what is <code>output[2]</code> after the left pass only (before right pass)?</div>
+      <div class="options">
+        <button class="opt" onclick="answer(this,'q1',false)">6 — product of 1, 2, 3</button>
+        <button class="opt" onclick="answer(this,'q1',true)">2 — product of 1, 2</button>
+        <button class="opt" onclick="answer(this,'q1',false)">1 — prefix not updated</button>
+        <button class="opt" onclick="answer(this,'q1',false)">8 — product of 2, 4</button>
+      </div>
+      <div class="feedback" id="q1-fb"></div>
+    </div>
+
+    <!-- Q2 -->
+    <div class="quiz-q" id="q2">
+      <div class="quiz-prompt">Why does the left pass write <code>prefix</code> to <code>output[i]</code> <em>before</em> multiplying <code>prefix *= nums[i]</code>?</div>
+      <div class="options">
+        <button class="opt" onclick="answer(this,'q2',false)">Avoids index out of bounds on last element</button>
+        <button class="opt" onclick="answer(this,'q2',false)">Python evaluates right side of *= before assignment</button>
+        <button class="opt" onclick="answer(this,'q2',true)">output[i] needs product of nums before i, not including i</button>
+        <button class="opt" onclick="answer(this,'q2',false)">prefix must stay 1 until after the right pass</button>
+      </div>
+      <div class="feedback" id="q2-fb"></div>
+    </div>
+
+    <!-- Q3 -->
+    <div class="quiz-q" id="q3">
+      <div class="quiz-prompt">What is the value of <code>postfix</code> when the right pass reaches <code>i = n-1</code> (last index) on its first iteration?</div>
+      <div class="options">
+        <button class="opt" onclick="answer(this,'q3',false)">nums[n-1] — initialized to last element</button>
+        <button class="opt" onclick="answer(this,'q3',true)">1 — empty product; nothing is to the right</button>
+        <button class="opt" onclick="answer(this,'q3',false)">0 — right pass hasn't accumulated yet</button>
+        <button class="opt" onclick="answer(this,'q3',false)">total product — carries over from left pass</button>
+      </div>
+      <div class="feedback" id="q3-fb"></div>
+    </div>
+
+    <!-- Q4 -->
+    <div class="quiz-q" id="q4">
+      <div class="quiz-prompt">For <code>nums = [1, 0, 3]</code>, what is <code>output[1]</code>? (The element at the zero.)</div>
+      <div class="options">
+        <button class="opt" onclick="answer(this,'q4',false)">0 — zero propagates through both passes</button>
+        <button class="opt" onclick="answer(this,'q4',false)">undefined — division by zero triggered</button>
+        <button class="opt" onclick="answer(this,'q4',true)">3 — left=1, right=3, so 1×3=3</button>
+        <button class="opt" onclick="answer(this,'q4',false)">1 — zero index gets the prefix value only</button>
+      </div>
+      <div class="feedback" id="q4-fb"></div>
+    </div>
+
+  </div>
+
+  <!-- ── Primary source ── -->
+  <h2>Primary Source</h2>
+  <p><strong>Watch:</strong> <a href="https://www.youtube.com/watch?v=bNvIQI2wAjk" target="_blank">NeetCode — Product of Array Except Self</a> (9 min). He draws the prefix/postfix table exactly as shown above. Watch <em>after</em> you attempt the problem cold.</p>
+
+  <hr class="divider">
+
+  <div class="footer">
+    <p>Stuck? Ask the agent: <em>"Why does the right pass go right-to-left?"</em> or <em>"What happens when there are two zeros in nums?"</em></p>
+    <p style="margin-top:0.5rem">
+      ← <a href="./0001-top-k-frequent-elements.html">Lesson 1: Top K Frequent Elements</a> &nbsp;·&nbsp;
+      Reference: <a href="../reference/prefix-postfix-patterns.html">Prefix / Postfix Cheat Sheet</a>
+    </p>
+    <a class="next-link" href="#">Next: Valid Sudoku →</a>
+  </div>
+
+  <script>
+    const explanations = {
+      q1: "After the left pass, output[2] = prefix at the time we reach i=2. We started prefix=1, multiplied by nums[0]=1 → prefix=1, then nums[1]=2 → prefix=2. So when we write output[2], prefix is 2. Correct: product of nums[0..1] = 1×2 = 2.",
+      q2: "output[i] must be the product of everything to the LEFT of i — meaning nums[0] through nums[i-1]. If we updated prefix first, it would include nums[i] itself. Write first, update after.",
+      q3: "postfix starts at 1. The right pass processes i=n-1 first. At that point postfix=1, meaning 'empty product to the right of i=n-1'. We multiply output[n-1] by 1 (no change), then update postfix *= nums[n-1].",
+      q4: "No division, no crash. Left pass: prefix at i=1 is nums[0]=1. Right pass: postfix at i=1 is nums[2]=3. output[1] = 1 × 3 = 3. The two-pass approach handles zeros naturally."
+    };
+    function answer(btn, qid, correct) {
+      const q = document.getElementById(qid);
+      const fb = document.getElementById(qid+'-fb');
+      const opts = q.querySelectorAll('.opt');
+      opts.forEach(o => o.disabled = true);
+      btn.classList.add(correct ? 'correct' : 'wrong');
+      if (!correct) opts.forEach(o => { if (o.onclick.toString().includes('true')) o.classList.add('correct'); });
+      fb.textContent = explanations[qid];
+      fb.className = 'feedback ' + (correct ? 'correct' : 'wrong');
+    }
+  </script>
+
+</body>
+</html>

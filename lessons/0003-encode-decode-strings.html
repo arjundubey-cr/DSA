@@ -1,0 +1,436 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Encode & Decode Strings</title>
+  <style>
+    :root {
+      --bg:#fafaf8; --surface:#ffffff; --border:#e8e6e0;
+      --text:#1a1a1a; --muted:#6b6b6b; --accent:#2563eb;
+      --accent-light:#eff6ff; --green:#16a34a; --green-light:#f0fdf4;
+      --red:#dc2626; --red-light:#fef2f2; --yellow:#d97706;
+      --yellow-light:#fffbeb; --orange:#ea580c; --orange-light:#fff7ed;
+      --code-bg:#f4f3ef;
+      --mono:'JetBrains Mono','Fira Code','Cascadia Code',monospace;
+      --sans:system-ui,-apple-system,sans-serif;
+    }
+    @media(prefers-color-scheme:dark){
+      :root{--bg:#141413;--surface:#1e1e1c;--border:#2e2e2b;--text:#e8e6e0;
+      --muted:#8a8880;--accent:#60a5fa;--accent-light:#1e3a5f;
+      --green:#4ade80;--green-light:#052e16;--red:#f87171;--red-light:#3b0000;
+      --yellow:#fbbf24;--yellow-light:#2d1f00;--orange:#fb923c;--orange-light:#431407;
+      --code-bg:#252522;}
+    }
+    *{box-sizing:border-box;margin:0;padding:0}
+    body{background:var(--bg);color:var(--text);font-family:var(--sans);font-size:17px;
+    line-height:1.7;max-width:740px;margin:0 auto;padding:3rem 1.5rem 6rem}
+    .lesson-meta{font-family:var(--mono);font-size:0.75rem;color:var(--muted);
+    letter-spacing:0.08em;text-transform:uppercase;margin-bottom:0.4rem}
+    h1{font-size:2rem;font-weight:700;letter-spacing:-0.02em;line-height:1.2;margin-bottom:0.5rem}
+    .tags{display:flex;gap:0.5rem;flex-wrap:wrap;margin:0.75rem 0 2rem}
+    .tag{font-family:var(--mono);font-size:0.7rem;padding:0.2rem 0.6rem;
+    border-radius:999px;border:1px solid var(--border);color:var(--muted);letter-spacing:0.04em}
+    .tag.medium{border-color:var(--yellow);color:var(--yellow)}
+    .tag.pattern{border-color:var(--accent);color:var(--accent)}
+    h2{font-size:1.25rem;font-weight:700;margin:2.5rem 0 0.75rem;padding-top:0.5rem}
+    p{margin-bottom:1rem}
+    strong{font-weight:600}
+    em{font-style:italic}
+    a{color:var(--accent);text-decoration:none}
+    a:hover{text-decoration:underline}
+    ol,ul{padding-left:1.5rem;margin-bottom:1rem}
+    li{margin-bottom:0.25rem}
+
+    .problem-box{background:var(--surface);border:1px solid var(--border);
+    border-radius:10px;padding:1.25rem 1.5rem;margin:1.25rem 0}
+    .problem-box .label{font-family:var(--mono);font-size:0.7rem;color:var(--muted);
+    text-transform:uppercase;letter-spacing:0.08em;margin-bottom:0.4rem}
+    .example{background:var(--code-bg);border-radius:6px;padding:0.75rem 1rem;
+    font-family:var(--mono);font-size:0.82rem;margin-top:0.75rem}
+    .example .ex-label{color:var(--muted);margin-bottom:0.2rem}
+
+    pre{background:var(--code-bg);border-radius:8px;padding:1.25rem 1.5rem;
+    overflow-x:auto;margin:1rem 0;font-family:var(--mono);font-size:0.85rem;
+    line-height:1.6;tab-size:4}
+    code{font-family:var(--mono);font-size:0.85em;background:var(--code-bg);
+    padding:0.1em 0.3em;border-radius:3px}
+    pre code{background:none;padding:0;font-size:1em}
+    .kw{color:#7c3aed}
+    .kw2{color:#0369a1}
+    @media(prefers-color-scheme:dark){.kw{color:#a78bfa}.kw2{color:#38bdf8}}
+    .cm{color:var(--muted);font-style:italic}
+    .nm{color:var(--green)}
+    .st{color:var(--yellow)}
+    .hl{background:rgba(251,191,36,0.18);border-radius:2px;padding:0 2px}
+
+    .callout{border-left:3px solid var(--accent);background:var(--accent-light);
+    padding:0.9rem 1.25rem;border-radius:0 8px 8px 0;margin:1.25rem 0}
+    .callout.insight{border-color:var(--green);background:var(--green-light)}
+    .callout.danger{border-color:var(--red);background:var(--red-light)}
+    .callout .callout-title{font-family:var(--mono);font-size:0.72rem;font-weight:700;
+    text-transform:uppercase;letter-spacing:0.08em;margin-bottom:0.3rem;color:var(--accent)}
+    .callout.insight .callout-title{color:var(--green)}
+    .callout.danger .callout-title{color:var(--red)}
+
+    /* ── Encoding visualizer ── */
+    .enc-vis{background:var(--surface);border:1px solid var(--border);
+    border-radius:10px;padding:1.25rem 1.5rem;margin:1.25rem 0;overflow-x:auto}
+    .enc-vis .vis-label{font-family:var(--mono);font-size:0.72rem;color:var(--muted);
+    text-transform:uppercase;letter-spacing:0.07em;margin-bottom:1rem}
+    .enc-row{display:flex;align-items:center;gap:0.4rem;margin-bottom:0.6rem;flex-wrap:wrap}
+    .enc-row .row-label{font-family:var(--mono);font-size:0.72rem;color:var(--muted);
+    min-width:70px;text-align:right}
+    .enc-chars{display:flex;gap:2px;flex-wrap:wrap}
+    .ch{display:inline-flex;align-items:center;justify-content:center;
+    width:28px;height:28px;border-radius:4px;font-family:var(--mono);
+    font-size:0.75rem;font-weight:600;border:1px solid var(--border)}
+    .ch.len{background:var(--accent-light);color:var(--accent);border-color:var(--accent)}
+    .ch.sep{background:var(--orange-light);color:var(--orange);border-color:var(--orange)}
+    .ch.str{background:var(--green-light);color:var(--green);border-color:var(--green)}
+    .ch.str2{background:var(--yellow-light);color:var(--yellow);border-color:var(--yellow)}
+
+    .legend{display:flex;gap:1rem;flex-wrap:wrap;margin-top:0.75rem;font-family:var(--mono);font-size:0.72rem}
+    .legend-item{display:flex;align-items:center;gap:0.3rem}
+    .legend-swatch{width:14px;height:14px;border-radius:3px;border:1px solid}
+
+    .anno-list{list-style:none;margin:0.5rem 0 1rem}
+    .anno-list li{display:flex;gap:0.75rem;padding:0.4rem 0;
+    border-bottom:1px solid var(--border);font-size:0.92rem}
+    .anno-list li:last-child{border-bottom:none}
+    .anno-num{font-family:var(--mono);font-size:0.75rem;color:var(--accent);
+    font-weight:700;min-width:1.5rem;padding-top:0.2rem}
+
+    /* ── Parse visualizer ── */
+    .parse-steps{display:grid;gap:0.5rem;margin:1rem 0}
+    .parse-step{background:var(--surface);border:1px solid var(--border);
+    border-radius:8px;padding:0.75rem 1rem;display:grid;
+    grid-template-columns:auto 1fr;gap:0.5rem 1rem;align-items:start}
+    .step-num{font-family:var(--mono);font-size:0.72rem;color:var(--accent);
+    font-weight:700;padding-top:0.2rem}
+    .step-body{font-family:var(--mono);font-size:0.82rem;line-height:1.5}
+    .step-body .dim{color:var(--muted)}
+
+    /* ── Quiz ── */
+    .quiz-section{background:var(--surface);border:1px solid var(--border);
+    border-radius:12px;padding:1.5rem;margin:2rem 0}
+    .quiz-section h2{margin-top:0;padding-top:0}
+    .quiz-q{margin-bottom:1.5rem;padding-bottom:1.5rem;border-bottom:1px solid var(--border)}
+    .quiz-q:last-child{border-bottom:none;margin-bottom:0;padding-bottom:0}
+    .quiz-prompt{font-weight:600;margin-bottom:0.75rem}
+    .quiz-prompt code{font-weight:normal}
+    .options{display:grid;grid-template-columns:1fr 1fr;gap:0.5rem}
+    @media(max-width:520px){.options{grid-template-columns:1fr}}
+    .opt{font-family:var(--mono);font-size:0.82rem;padding:0.6rem 0.9rem;
+    border:1px solid var(--border);border-radius:7px;cursor:pointer;
+    background:var(--bg);color:var(--text);text-align:left;
+    transition:border-color 0.1s,background 0.1s;line-height:1.4}
+    .opt:hover:not(:disabled){border-color:var(--accent);background:var(--accent-light)}
+    .opt.correct{border-color:var(--green)!important;background:var(--green-light)!important;color:var(--green)!important}
+    .opt.wrong{border-color:var(--red)!important;background:var(--red-light)!important;color:var(--red)!important}
+    .opt:disabled{cursor:default;opacity:0.85}
+    .feedback{margin-top:0.6rem;font-size:0.88rem;min-height:1.2em;color:var(--muted)}
+    .feedback.correct{color:var(--green)}
+    .feedback.wrong{color:var(--red)}
+
+    .footer{margin-top:4rem;padding-top:1.5rem;border-top:1px solid var(--border);
+    font-size:0.82rem;color:var(--muted)}
+    .footer a{color:var(--muted)}
+    .next-link{display:inline-flex;align-items:center;gap:0.4rem;margin-top:0.75rem;
+    font-family:var(--mono);font-size:0.78rem;color:var(--accent);
+    border:1px solid var(--accent);padding:0.4rem 0.9rem;border-radius:6px}
+    .next-link:hover{background:var(--accent-light);text-decoration:none}
+    hr.divider{border:none;border-top:1px solid var(--border);margin:2rem 0}
+  </style>
+</head>
+<body>
+
+  <div class="lesson-meta">Lesson 003 · Arrays &amp; Hashing</div>
+  <h1>Encode &amp; Decode Strings</h1>
+  <div class="tags">
+    <span class="tag medium">Medium</span>
+    <span class="tag pattern">Length-Prefix Encoding</span>
+    <span class="tag pattern">String Parsing</span>
+  </div>
+
+  <!-- ── Problem ── -->
+  <h2>The Problem</h2>
+  <div class="problem-box">
+    <div class="label">Problem Statement</div>
+    <p style="margin:0.5rem 0 0.75rem">
+      Design an algorithm to <strong>encode</strong> a list of strings into a single string,
+      and <strong>decode</strong> that single string back into the original list.
+      The encoded string may be transmitted over a network where any character could appear in the original strings.
+    </p>
+    <p style="margin:0 0 0.75rem;font-size:0.9rem">
+      Implement two functions:
+    </p>
+    <ul style="font-family:var(--mono);font-size:0.85rem;margin-bottom:0.75rem">
+      <li><code>encode(strs: list[str]) -> str</code></li>
+      <li><code>decode(s: str) -> list[str]</code></li>
+    </ul>
+    <div class="example">
+      <div class="ex-label">Example</div>
+      Input:  ["neet", "code", "love", "you"]<br>
+      Encoded: "4#neet4#code4#love3#you"<br>
+      Decoded: ["neet", "code", "love", "you"]
+    </div>
+    <p style="margin-top:0.75rem;margin-bottom:0;font-size:0.85rem;color:var(--muted)">
+      Constraints: strings can contain <strong>any</strong> character — including <code>#</code>, commas, spaces, newlines.
+    </p>
+  </div>
+
+  <!-- ── Why naive fails ── -->
+  <h2>Step 1 — Why a Simple Delimiter Fails</h2>
+
+  <p>First instinct: join with a delimiter like <code>","</code> or <code>"#"</code>, then split on decode.</p>
+
+  <div class="callout danger">
+    <div class="callout-title">Problem</div>
+    What if a string <em>contains</em> your delimiter?<br><br>
+    <code>encode(["a,b", "c"]) → "a,b,c"</code><br>
+    <code>decode("a,b,c")     → ["a", "b", "c"]</code> &nbsp;← <strong>wrong.</strong> Should be <code>["a,b", "c"]</code>.
+  </div>
+
+  <p>Any single fixed delimiter breaks the moment a string contains that character. Since strings can contain <em>any</em> character, no single delimiter is safe.</p>
+
+  <!-- ── Key insight ── -->
+  <h2>Step 2 — The Insight: Length-Prefix Encoding</h2>
+
+  <div class="callout insight">
+    <div class="callout-title">Core Insight</div>
+    Instead of a delimiter <em>between</em> strings, store the <strong>length before</strong> each string.<br><br>
+    Format: <code>{len}#{content}</code> — repeated for each string.<br><br>
+    On decode, read the length, skip <code>#</code>, then slice <em>exactly</em> that many characters. No ambiguity. No parsing of the content.
+  </div>
+
+  <p>The <code>#</code> here is a separator between the length and the content — not a delimiter between strings. Even if the content contains <code>#</code>, we never look inside it. We consume exactly <code>len</code> characters and move on.</p>
+
+  <!-- ── Visual ── -->
+  <h2>Step 3 — See the Encoding</h2>
+
+  <p>For <code>["neet", "code", "love", "you"]</code>:</p>
+
+  <div class="enc-vis">
+    <div class="vis-label">Encoded string — character by character</div>
+    <div class="enc-row">
+      <div class="row-label">"neet"</div>
+      <div class="enc-chars">
+        <span class="ch len">4</span>
+        <span class="ch sep">#</span>
+        <span class="ch str">n</span><span class="ch str">e</span><span class="ch str">e</span><span class="ch str">t</span>
+      </div>
+    </div>
+    <div class="enc-row">
+      <div class="row-label">"code"</div>
+      <div class="enc-chars">
+        <span class="ch len">4</span>
+        <span class="ch sep">#</span>
+        <span class="ch str2">c</span><span class="ch str2">o</span><span class="ch str2">d</span><span class="ch str2">e</span>
+      </div>
+    </div>
+    <div class="enc-row">
+      <div class="row-label">"love"</div>
+      <div class="enc-chars">
+        <span class="ch len">4</span>
+        <span class="ch sep">#</span>
+        <span class="ch str">l</span><span class="ch str">o</span><span class="ch str">v</span><span class="ch str">e</span>
+      </div>
+    </div>
+    <div class="enc-row">
+      <div class="row-label">"you"</div>
+      <div class="enc-chars">
+        <span class="ch len">3</span>
+        <span class="ch sep">#</span>
+        <span class="ch str2">y</span><span class="ch str2">o</span><span class="ch str2">u</span>
+      </div>
+    </div>
+    <div class="legend">
+      <span class="legend-item"><span class="legend-swatch" style="background:var(--accent-light);border-color:var(--accent)"></span>length</span>
+      <span class="legend-item"><span class="legend-swatch" style="background:var(--orange-light);border-color:var(--orange)"></span># separator</span>
+      <span class="legend-item"><span class="legend-swatch" style="background:var(--green-light);border-color:var(--green)"></span>string content</span>
+    </div>
+  </div>
+
+  <p>Full encoded string: <code>"4#neet4#code4#love3#you"</code></p>
+
+  <!-- ── Decode walkthrough ── -->
+  <h2>Step 4 — Decoding: Read the Length, Slice, Advance</h2>
+
+  <p>Pointer starts at <code>i = 0</code>. Each iteration:</p>
+  <ol>
+    <li>Find the <code>#</code> starting from <code>i</code></li>
+    <li>Parse the integer before it — that's the string length <code>n</code></li>
+    <li>Slice <code>n</code> characters after the <code>#</code></li>
+    <li>Advance <code>i</code> past what we consumed</li>
+  </ol>
+
+  <div class="parse-steps">
+    <div class="parse-step">
+      <div class="step-num">i=0</div>
+      <div class="step-body">
+        Find <code>#</code> at j=1. Length = <code>s[0:1]</code> = <code>"4"</code> → n=4<br>
+        Slice <code>s[2 : 2+4]</code> = <code>"neet"</code> → append.<br>
+        <span class="dim">Advance i = 2+4 = 6</span>
+      </div>
+    </div>
+    <div class="parse-step">
+      <div class="step-num">i=6</div>
+      <div class="step-body">
+        Find <code>#</code> at j=7. Length = <code>s[6:7]</code> = <code>"4"</code> → n=4<br>
+        Slice <code>s[8 : 8+4]</code> = <code>"code"</code> → append.<br>
+        <span class="dim">Advance i = 8+4 = 12</span>
+      </div>
+    </div>
+    <div class="parse-step">
+      <div class="step-num">i=12</div>
+      <div class="step-body">
+        Find <code>#</code> at j=13. Length = <code>"4"</code> → n=4. Slice → <code>"love"</code>.<br>
+        <span class="dim">Advance i = 18</span>
+      </div>
+    </div>
+    <div class="parse-step">
+      <div class="step-num">i=18</div>
+      <div class="step-body">
+        Find <code>#</code> at j=19. Length = <code>"3"</code> → n=3. Slice → <code>"you"</code>.<br>
+        <span class="dim">Advance i = 22. i = len(s). Done.</span>
+      </div>
+    </div>
+  </div>
+
+  <!-- ── Code ── -->
+  <h2>Step 5 — The Code</h2>
+
+  <pre><code><span class="kw">class</span> <span class="nm">Solution</span>:
+
+    <span class="kw">def</span> <span class="nm">encode</span>(self, strs: list[str]) -> str:
+        res = <span class="st">""</span>
+        <span class="kw">for</span> s <span class="kw">in</span> strs:
+            res += <span class="st">f"</span>{len(s)}<span class="st">#</span>{s}<span class="st">"</span>       <span class="cm"># ①</span>
+        <span class="kw">return</span> res
+
+    <span class="kw">def</span> <span class="nm">decode</span>(self, s: str) -> list[str]:
+        res, i = [], <span class="st">0</span>
+        <span class="kw">while</span> i < len(s):
+            j = s.index(<span class="st">"#"</span>, i)        <span class="cm"># ②</span>
+            n = int(s[i:j])             <span class="cm"># ③</span>
+            res.append(s[j+<span class="st">1</span> : j+<span class="st">1</span>+n]) <span class="cm"># ④</span>
+            i = j + <span class="st">1</span> + n             <span class="cm"># ⑤</span>
+        <span class="kw">return</span> res</code></pre>
+
+  <ul class="anno-list">
+    <li><span class="anno-num">①</span><span>Each string becomes <code>{length}#{content}</code>. No separator needed between pairs — the length tells us exactly where each string ends.</span></li>
+    <li><span class="anno-num">②</span><span><code>s.index("#", i)</code> finds the next <code>#</code> <em>starting from i</em>. Crucial: we search from <code>i</code>, not 0, so we don't find a <code>#</code> inside a previous string's content.</span></li>
+    <li><span class="anno-num">③</span><span><code>s[i:j]</code> is the length digits. Convert to int.</span></li>
+    <li><span class="anno-num">④</span><span>Content starts one position after <code>#</code> (at <code>j+1</code>) and is exactly <code>n</code> chars long. Slice precisely — no scanning, no splitting.</span></li>
+    <li><span class="anno-num">⑤</span><span>Advance <code>i</code> past the chunk we just consumed: the <code>#</code> position + 1 (for <code>#</code> itself) + n (for the content).</span></li>
+  </ul>
+
+  <div class="callout insight">
+    <div class="callout-title">Why This Is Robust</div>
+    We never look <em>inside</em> the content for delimiters. We read the length, then blindly slice that many characters. A string containing <code>"3#hi"</code> or <code>"###"</code> or <code>","</code> is handled perfectly — we skip right over it.
+  </div>
+
+  <p>Time: O(n) encode, O(n) decode. Space: O(n) for the encoded string and result list.</p>
+
+  <!-- ── Edge case ── -->
+  <h2>Step 6 — Edge Cases to Consider</h2>
+  <ul>
+    <li><strong>Empty string in list:</strong> <code>""</code> → encodes as <code>"0#"</code>. Decodes back to <code>""</code>. Works.</li>
+    <li><strong>String containing <code>#</code>:</strong> <code>"a#b"</code> → encodes as <code>"3#a#b"</code>. Decode finds first <code>#</code> at j=1 via <code>index("#", i)</code>, reads length 3, slices <code>"a#b"</code>. Works.</li>
+    <li><strong>Empty list:</strong> encode returns <code>""</code>, decode of <code>""</code> returns <code>[]</code> (while loop never runs). Works.</li>
+    <li><strong>Multi-digit lengths:</strong> <code>"hello world"</code> is 11 chars → <code>"11#hello world"</code>. <code>index("#")</code> finds the first <code>#</code> correctly, so <code>s[i:j]</code> = <code>"11"</code>. Works.</li>
+  </ul>
+
+  <hr class="divider">
+
+  <!-- ── Quiz ── -->
+  <div class="quiz-section">
+    <h2>Retrieval Practice</h2>
+    <p style="font-size:0.88rem;color:var(--muted);margin-bottom:1.5rem">No peeking. Recall first.</p>
+
+    <!-- Q1 -->
+    <div class="quiz-q" id="q1">
+      <div class="quiz-prompt">How does <code>"3#a#b"</code> decode correctly even though content contains <code>#</code>?</div>
+      <div class="options">
+        <button class="opt" onclick="answer(this,'q1',false)">escape the inner # during encode step</button>
+        <button class="opt" onclick="answer(this,'q1',false)">split on first # only, ignore the rest</button>
+        <button class="opt" onclick="answer(this,'q1',true)">read length 3, slice 3 chars — never scan content</button>
+        <button class="opt" onclick="answer(this,'q1',false)">s.index finds last # not the first one</button>
+      </div>
+      <div class="feedback" id="q1-fb"></div>
+    </div>
+
+    <!-- Q2 -->
+    <div class="quiz-q" id="q2">
+      <div class="quiz-prompt">What does encode produce for the empty string <code>""</code>?</div>
+      <div class="options">
+        <button class="opt" onclick="answer(this,'q2',false)">"" — empty maps to empty string</button>
+        <button class="opt" onclick="answer(this,'q2',false)">"#" — separator only, no length</button>
+        <button class="opt" onclick="answer(this,'q2',true)">"0#" — zero length then separator</button>
+        <button class="opt" onclick="answer(this,'q2',false)">"0" — length only, hash skipped</button>
+      </div>
+      <div class="feedback" id="q2-fb"></div>
+    </div>
+
+    <!-- Q3 -->
+    <div class="quiz-q" id="q3">
+      <div class="quiz-prompt">In decode, why is <code>s.index("#", i)</code> called with <code>i</code> as the start, not 0?</div>
+      <div class="options">
+        <button class="opt" onclick="answer(this,'q3',false)">index() errors when searching from 0</button>
+        <button class="opt" onclick="answer(this,'q3',true)">avoids finding a # inside a previous string's content</button>
+        <button class="opt" onclick="answer(this,'q3',false)">skips the length digits we already parsed</button>
+        <button class="opt" onclick="answer(this,'q3',false)">index is 0-indexed, i corrects the offset</button>
+      </div>
+      <div class="feedback" id="q3-fb"></div>
+    </div>
+
+    <!-- Q4 -->
+    <div class="quiz-q" id="q4">
+      <div class="quiz-prompt">After decoding one chunk (j found, n parsed), what is the new value of <code>i</code>?</div>
+      <div class="options">
+        <button class="opt" onclick="answer(this,'q4',false)">j + n — hash pos plus content length</button>
+        <button class="opt" onclick="answer(this,'q4',false)">i + n — old i plus content length</button>
+        <button class="opt" onclick="answer(this,'q4',true)">j + 1 + n — skip hash, skip n content chars</button>
+        <button class="opt" onclick="answer(this,'q4',false)">j + 2 + n — skip hash and length digit</button>
+      </div>
+      <div class="feedback" id="q4-fb"></div>
+    </div>
+
+  </div>
+
+  <!-- ── Primary source ── -->
+  <h2>Primary Source</h2>
+  <p><strong>Watch:</strong> <a href="https://www.youtube.com/watch?v=B1k_sxOSgv8" target="_blank">NeetCode — Encode and Decode Strings</a> (8 min). He draws the length-prefix format and traces the pointer movement on the decode. Watch after solving cold.</p>
+
+  <hr class="divider">
+
+  <div class="footer">
+    <p>Ask the agent: <em>"What if string length is 10+ digits — doesn't <code>index('#')</code> still work?"</em> or <em>"Could I use a different separator than <code>#</code>?"</em></p>
+    <p style="margin-top:0.5rem">
+      ← <a href="./0002-product-of-array-except-self.html">Lesson 2: Product of Array Except Self</a><br>
+      Reference: <a href="../reference/string-encoding-patterns.html">String Encoding Cheat Sheet</a>
+    </p>
+    <a class="next-link" href="#">Next: Longest Consecutive Sequence →</a>
+  </div>
+
+  <script>
+    const explanations = {
+      q1: "We read the length (3) from before the #, then slice exactly 3 characters starting after #. We never search inside the content — so any character including # in the content is consumed blindly.",
+      q2: "'0#' — len('') is 0, so we write '0' + '#' + '' = '0#'. On decode: j found at index 1, n = int('0') = 0, slice s[2:2] = '', append '', advance i = 2. Correct.",
+      q3: "s.index('#', i) starts searching at position i — the beginning of the current chunk. If a previous string's content contained '#', those characters are already behind i, so they can't be found. Without the start argument, we'd potentially find a stale # inside old content.",
+      q4: "After finding # at position j: the content starts at j+1 and is n characters long, ending at j+1+n. So the next chunk starts at i = j+1+n."
+    };
+    function answer(btn, qid, correct) {
+      const q = document.getElementById(qid);
+      const fb = document.getElementById(qid+'-fb');
+      q.querySelectorAll('.opt').forEach(o => o.disabled = true);
+      btn.classList.add(correct ? 'correct' : 'wrong');
+      if (!correct) q.querySelectorAll('.opt').forEach(o => { if (o.onclick.toString().includes('true')) o.classList.add('correct'); });
+      fb.textContent = explanations[qid];
+      fb.className = 'feedback ' + (correct ? 'correct' : 'wrong');
+    }
+  </script>
+
+</body>
+</html>

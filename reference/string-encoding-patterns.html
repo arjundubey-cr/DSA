@@ -1,0 +1,103 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>String Encoding Patterns — Reference</title>
+  <style>
+    :root{--bg:#fafaf8;--surface:#fff;--border:#e8e6e0;--text:#1a1a1a;--muted:#6b6b6b;
+    --accent:#2563eb;--accent-light:#eff6ff;--green:#16a34a;--green-light:#f0fdf4;
+    --orange:#ea580c;--orange-light:#fff7ed;--red:#dc2626;--red-light:#fef2f2;
+    --code-bg:#f4f3ef;--mono:'JetBrains Mono','Fira Code',monospace}
+    @media(prefers-color-scheme:dark){
+      :root{--bg:#141413;--surface:#1e1e1c;--border:#2e2e2b;--text:#e8e6e0;--muted:#8a8880;
+      --accent:#60a5fa;--accent-light:#1e3a5f;--green:#4ade80;--green-light:#052e16;
+      --orange:#fb923c;--orange-light:#431407;--red:#f87171;--red-light:#3b0000;
+      --code-bg:#252522}}
+    *{box-sizing:border-box;margin:0;padding:0}
+    body{background:var(--bg);color:var(--text);font-family:var(--mono);font-size:13px;
+    line-height:1.6;max-width:900px;margin:0 auto;padding:2rem 1.5rem 4rem}
+    h1{font-size:1.1rem;font-weight:700;margin-bottom:0.25rem}
+    .subtitle{color:var(--muted);font-size:0.78rem;margin-bottom:2rem}
+    h2{font-size:0.78rem;text-transform:uppercase;letter-spacing:0.08em;color:var(--muted);
+    margin:2rem 0 0.75rem;padding-bottom:0.3rem;border-bottom:1px solid var(--border)}
+    .grid{display:grid;grid-template-columns:1fr 1fr;gap:1rem}
+    @media(max-width:600px){.grid{grid-template-columns:1fr}}
+    .card{background:var(--surface);border:1px solid var(--border);border-radius:8px;padding:1rem}
+    .card-title{font-weight:700;font-size:0.82rem;margin-bottom:0.5rem;color:var(--accent)}
+    .card-title.green{color:var(--green)}
+    .card-title.red{color:var(--red)}
+    pre{background:var(--code-bg);border-radius:5px;padding:0.75rem;overflow-x:auto;
+    font-size:0.78rem;line-height:1.55;margin:0.5rem 0}
+    table{width:100%;border-collapse:collapse;font-size:0.78rem;margin-top:0.5rem}
+    th{text-align:left;padding:0.4rem 0.5rem;border-bottom:1px solid var(--border);color:var(--muted)}
+    td{padding:0.4rem 0.5rem;border-bottom:1px solid var(--border)}
+    .note{color:var(--muted);font-size:0.75rem;margin-top:0.3rem}
+    a{color:var(--accent);text-decoration:none}
+    .tag-safe{color:var(--green)} .tag-unsafe{color:var(--red)}
+  </style>
+</head>
+<body>
+
+<h1>String Encoding Patterns</h1>
+<div class="subtitle">Arrays &amp; Hashing · Reference Sheet</div>
+
+<h2>Length-Prefix Encoding (canonical)</h2>
+<div class="card" style="margin-bottom:1rem">
+  <div class="card-title green">Format: {len}#{content} — repeated per string</div>
+  <pre>def encode(strs):
+    return "".join(f"{len(s)}#{s}" for s in strs)
+
+def decode(s):
+    res, i = [], 0
+    while i < len(s):
+        j = s.index("#", i)       # find next # starting from i
+        n = int(s[i:j])           # parse length
+        res.append(s[j+1 : j+1+n])  # slice exactly n chars
+        i = j + 1 + n             # advance past this chunk
+    return res</pre>
+  <div class="note">Time: O(n) encode + O(n) decode · Space: O(n)</div>
+</div>
+
+<h2>Why Naive Approaches Fail</h2>
+<div class="grid">
+  <div class="card">
+    <div class="card-title red">Join on delimiter</div>
+    <pre>",".join(strs)   # breaks if "," in strs
+"#".join(strs)   # breaks if "#" in strs</pre>
+    <div class="note">No character is safe — strings can contain any char.</div>
+  </div>
+  <div class="card">
+    <div class="card-title red">Fixed-width chunks</div>
+    <pre># pad all to length 50, slice on decode
+# wastes space; fails on long strings</pre>
+    <div class="note">Impractical with variable-length strings.</div>
+  </div>
+</div>
+
+<h2>Edge Cases — All Handled by Length-Prefix</h2>
+<table>
+  <tr><th>Input</th><th>Encoded</th><th>Note</th></tr>
+  <tr><td><code>[""]</code></td><td><code>"0#"</code></td><td>Empty string → length 0</td></tr>
+  <tr><td><code>["a#b"]</code></td><td><code>"3#a#b"</code></td><td># in content — slice skips it</td></tr>
+  <tr><td><code>["hello world"]</code></td><td><code>"11#hello world"</code></td><td>Multi-digit length</td></tr>
+  <tr><td><code>[]</code></td><td><code>""</code></td><td>Empty list → empty string; decode returns []</td></tr>
+</table>
+
+<h2>Key Invariants</h2>
+<table>
+  <tr><th>Rule</th><th>Detail</th></tr>
+  <tr><td>Search from <code>i</code></td><td><code>s.index("#", i)</code> — never search from 0 on decode</td></tr>
+  <tr><td>Never scan content</td><td>Slice exactly n chars after #; no search inside content</td></tr>
+  <tr><td>Advance correctly</td><td>New i = j + 1 + n (hash + content)</td></tr>
+</table>
+
+<h2>Related</h2>
+<table>
+  <tr><th>Problem</th><th>Pattern</th></tr>
+  <tr><td><a href="../lessons/0003-encode-decode-strings.html">Encode &amp; Decode Strings</a></td><td>Length-prefix encoding</td></tr>
+  <tr><td>Real-world: HTTP chunked transfer encoding</td><td>Same idea — chunk size before each chunk</td></tr>
+  <tr><td>Real-world: Protocol Buffers (protobuf)</td><td>Field number + wire type + length-delimited</td></tr>
+</table>
+
+</body>
+</html>

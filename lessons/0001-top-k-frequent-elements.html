@@ -1,0 +1,637 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>347 · Top K Frequent Elements</title>
+  <style>
+    :root {
+      --bg: #fafaf8;
+      --surface: #ffffff;
+      --border: #e8e6e0;
+      --text: #1a1a1a;
+      --muted: #6b6b6b;
+      --accent: #2563eb;
+      --accent-light: #eff6ff;
+      --green: #16a34a;
+      --green-light: #f0fdf4;
+      --red: #dc2626;
+      --red-light: #fef2f2;
+      --yellow: #d97706;
+      --yellow-light: #fffbeb;
+      --code-bg: #f4f3ef;
+      --mono: 'JetBrains Mono', 'Fira Code', 'Cascadia Code', monospace;
+      --serif: Georgia, 'Times New Roman', serif;
+      --sans: system-ui, -apple-system, sans-serif;
+    }
+    @media (prefers-color-scheme: dark) {
+      :root {
+        --bg: #141413;
+        --surface: #1e1e1c;
+        --border: #2e2e2b;
+        --text: #e8e6e0;
+        --muted: #8a8880;
+        --accent: #60a5fa;
+        --accent-light: #1e3a5f;
+        --green: #4ade80;
+        --green-light: #052e16;
+        --red: #f87171;
+        --red-light: #3b0000;
+        --yellow: #fbbf24;
+        --yellow-light: #2d1f00;
+        --code-bg: #252522;
+      }
+    }
+
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+
+    body {
+      background: var(--bg);
+      color: var(--text);
+      font-family: var(--sans);
+      font-size: 17px;
+      line-height: 1.7;
+      max-width: 740px;
+      margin: 0 auto;
+      padding: 3rem 1.5rem 6rem;
+    }
+
+    /* ── Header ── */
+    .lesson-meta {
+      font-family: var(--mono);
+      font-size: 0.75rem;
+      color: var(--muted);
+      letter-spacing: 0.08em;
+      text-transform: uppercase;
+      margin-bottom: 0.4rem;
+    }
+    h1 {
+      font-size: 2rem;
+      font-weight: 700;
+      letter-spacing: -0.02em;
+      line-height: 1.2;
+      margin-bottom: 0.5rem;
+    }
+    .tags {
+      display: flex;
+      gap: 0.5rem;
+      flex-wrap: wrap;
+      margin: 0.75rem 0 2rem;
+    }
+    .tag {
+      font-family: var(--mono);
+      font-size: 0.7rem;
+      padding: 0.2rem 0.6rem;
+      border-radius: 999px;
+      border: 1px solid var(--border);
+      color: var(--muted);
+      letter-spacing: 0.04em;
+    }
+    .tag.medium { border-color: var(--yellow); color: var(--yellow); }
+    .tag.pattern { border-color: var(--accent); color: var(--accent); }
+
+    /* ── Typography ── */
+    h2 {
+      font-size: 1.25rem;
+      font-weight: 700;
+      margin: 2.5rem 0 0.75rem;
+      padding-top: 0.5rem;
+    }
+    h3 {
+      font-size: 1rem;
+      font-weight: 600;
+      color: var(--muted);
+      text-transform: uppercase;
+      letter-spacing: 0.06em;
+      font-family: var(--mono);
+      margin: 1.5rem 0 0.5rem;
+    }
+    p { margin-bottom: 1rem; }
+    strong { font-weight: 600; }
+    em { font-style: italic; }
+    a { color: var(--accent); text-decoration: none; }
+    a:hover { text-decoration: underline; }
+
+    /* ── Problem box ── */
+    .problem-box {
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: 10px;
+      padding: 1.25rem 1.5rem;
+      margin: 1.25rem 0;
+    }
+    .problem-box .label {
+      font-family: var(--mono);
+      font-size: 0.7rem;
+      color: var(--muted);
+      text-transform: uppercase;
+      letter-spacing: 0.08em;
+      margin-bottom: 0.4rem;
+    }
+    .example-grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 1rem;
+      margin-top: 0.75rem;
+    }
+    @media (max-width: 520px) { .example-grid { grid-template-columns: 1fr; } }
+    .example {
+      background: var(--code-bg);
+      border-radius: 6px;
+      padding: 0.75rem 1rem;
+      font-family: var(--mono);
+      font-size: 0.82rem;
+    }
+    .example .ex-label { color: var(--muted); margin-bottom: 0.2rem; }
+
+    /* ── Code blocks ── */
+    pre {
+      background: var(--code-bg);
+      border-radius: 8px;
+      padding: 1.25rem 1.5rem;
+      overflow-x: auto;
+      margin: 1rem 0;
+      font-family: var(--mono);
+      font-size: 0.85rem;
+      line-height: 1.6;
+      tab-size: 4;
+      position: relative;
+    }
+    code { font-family: var(--mono); font-size: 0.85em; background: var(--code-bg); padding: 0.1em 0.3em; border-radius: 3px; }
+    pre code { background: none; padding: 0; font-size: 1em; }
+
+    /* syntax highlight — minimal */
+    .kw { color: #7c3aed; }
+    .kw2 { color: #0369a1; }
+    @media (prefers-color-scheme: dark) {
+      .kw { color: #a78bfa; }
+      .kw2 { color: #38bdf8; }
+    }
+    .cm { color: var(--muted); font-style: italic; }
+    .nm { color: var(--green); }
+    .st { color: var(--yellow); }
+
+    /* ── Callouts ── */
+    .callout {
+      border-left: 3px solid var(--accent);
+      background: var(--accent-light);
+      padding: 0.9rem 1.25rem;
+      border-radius: 0 8px 8px 0;
+      margin: 1.25rem 0;
+    }
+    .callout.insight {
+      border-color: var(--green);
+      background: var(--green-light);
+    }
+    .callout .callout-title {
+      font-family: var(--mono);
+      font-size: 0.72rem;
+      font-weight: 700;
+      text-transform: uppercase;
+      letter-spacing: 0.08em;
+      margin-bottom: 0.3rem;
+      color: var(--accent);
+    }
+    .callout.insight .callout-title { color: var(--green); }
+
+    /* ── Complexity table ── */
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      margin: 1rem 0;
+      font-family: var(--mono);
+      font-size: 0.82rem;
+    }
+    th {
+      text-align: left;
+      padding: 0.5rem 0.75rem;
+      background: var(--code-bg);
+      font-weight: 600;
+      border-bottom: 1px solid var(--border);
+    }
+    td {
+      padding: 0.5rem 0.75rem;
+      border-bottom: 1px solid var(--border);
+    }
+
+    /* ── Bucket visualizer ── */
+    .bucket-vis {
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: 10px;
+      padding: 1.25rem 1.5rem;
+      margin: 1.25rem 0;
+    }
+    .bucket-vis .vis-label {
+      font-family: var(--mono);
+      font-size: 0.72rem;
+      color: var(--muted);
+      text-transform: uppercase;
+      letter-spacing: 0.07em;
+      margin-bottom: 1rem;
+    }
+    .buckets {
+      display: flex;
+      gap: 0.4rem;
+      align-items: flex-end;
+      margin-bottom: 0.4rem;
+    }
+    .bucket-col {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 0.15rem;
+    }
+    .bucket-cell {
+      width: 48px;
+      min-height: 32px;
+      border-radius: 5px;
+      border: 1px solid var(--border);
+      background: var(--code-bg);
+      font-family: var(--mono);
+      font-size: 0.78rem;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      color: var(--text);
+    }
+    .bucket-cell.filled {
+      background: var(--accent-light);
+      border-color: var(--accent);
+      color: var(--accent);
+      font-weight: 700;
+    }
+    .bucket-cell.top-k {
+      background: var(--green-light);
+      border-color: var(--green);
+      color: var(--green);
+      font-weight: 700;
+    }
+    .bucket-idx {
+      font-family: var(--mono);
+      font-size: 0.68rem;
+      color: var(--muted);
+      margin-top: 0.3rem;
+    }
+    .bucket-axis-label {
+      font-family: var(--mono);
+      font-size: 0.72rem;
+      color: var(--muted);
+      margin-top: 0.5rem;
+    }
+
+    /* ── Annotation list ── */
+    .anno-list {
+      list-style: none;
+      margin: 0.5rem 0 1rem;
+    }
+    .anno-list li {
+      display: flex;
+      gap: 0.75rem;
+      padding: 0.4rem 0;
+      border-bottom: 1px solid var(--border);
+      font-size: 0.92rem;
+    }
+    .anno-list li:last-child { border-bottom: none; }
+    .anno-num {
+      font-family: var(--mono);
+      font-size: 0.75rem;
+      color: var(--accent);
+      font-weight: 700;
+      min-width: 1.5rem;
+      padding-top: 0.2rem;
+    }
+
+    /* ── Quiz ── */
+    .quiz-section {
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: 12px;
+      padding: 1.5rem;
+      margin: 2rem 0;
+    }
+    .quiz-section h2 {
+      margin-top: 0;
+      padding-top: 0;
+    }
+    .quiz-q {
+      margin-bottom: 1.5rem;
+      padding-bottom: 1.5rem;
+      border-bottom: 1px solid var(--border);
+    }
+    .quiz-q:last-child { border-bottom: none; margin-bottom: 0; padding-bottom: 0; }
+    .quiz-prompt {
+      font-weight: 600;
+      margin-bottom: 0.75rem;
+    }
+    .quiz-prompt code { font-weight: normal; }
+    .options {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 0.5rem;
+    }
+    @media (max-width: 520px) { .options { grid-template-columns: 1fr; } }
+    .opt {
+      font-family: var(--mono);
+      font-size: 0.82rem;
+      padding: 0.6rem 0.9rem;
+      border: 1px solid var(--border);
+      border-radius: 7px;
+      cursor: pointer;
+      background: var(--bg);
+      color: var(--text);
+      text-align: left;
+      transition: border-color 0.1s, background 0.1s;
+      line-height: 1.4;
+    }
+    .opt:hover:not(:disabled) { border-color: var(--accent); background: var(--accent-light); }
+    .opt.correct { border-color: var(--green) !important; background: var(--green-light) !important; color: var(--green) !important; }
+    .opt.wrong { border-color: var(--red) !important; background: var(--red-light) !important; color: var(--red) !important; }
+    .opt:disabled { cursor: default; opacity: 0.85; }
+    .feedback {
+      margin-top: 0.6rem;
+      font-size: 0.88rem;
+      min-height: 1.2em;
+      color: var(--muted);
+    }
+    .feedback.correct { color: var(--green); }
+    .feedback.wrong { color: var(--red); }
+
+    /* ── Footer ── */
+    .footer {
+      margin-top: 4rem;
+      padding-top: 1.5rem;
+      border-top: 1px solid var(--border);
+      font-size: 0.82rem;
+      color: var(--muted);
+    }
+    .footer a { color: var(--muted); }
+    .next-link {
+      display: inline-flex;
+      align-items: center;
+      gap: 0.4rem;
+      margin-top: 0.75rem;
+      font-family: var(--mono);
+      font-size: 0.78rem;
+      color: var(--accent);
+      border: 1px solid var(--accent);
+      padding: 0.4rem 0.9rem;
+      border-radius: 6px;
+    }
+    .next-link:hover { background: var(--accent-light); text-decoration: none; }
+
+    .divider {
+      border: none;
+      border-top: 1px solid var(--border);
+      margin: 2rem 0;
+    }
+  </style>
+</head>
+<body>
+
+  <div class="lesson-meta">Lesson 001 · Arrays &amp; Hashing</div>
+  <h1>347. Top K Frequent Elements</h1>
+  <div class="tags">
+    <span class="tag medium">Medium</span>
+    <span class="tag pattern">Bucket Sort</span>
+    <span class="tag pattern">Hash Map</span>
+    <span class="tag">O(n) time</span>
+  </div>
+
+  <!-- ── Problem ── -->
+  <h2>The Problem</h2>
+  <div class="problem-box">
+    <div class="label">Problem Statement</div>
+    <p style="margin:0.5rem 0 0.75rem">Given an integer array <code>nums</code> and an integer <code>k</code>, return the <strong>k most frequent elements</strong>. You may return the answer in any order.</p>
+    <div class="example-grid">
+      <div class="example">
+        <div class="ex-label">Example 1</div>
+        Input: nums = [1,1,1,2,2,3], k = 2<br>
+        Output: [1, 2]
+      </div>
+      <div class="example">
+        <div class="ex-label">Example 2</div>
+        Input: nums = [1], k = 1<br>
+        Output: [1]
+      </div>
+    </div>
+    <p style="margin-top:0.75rem;margin-bottom:0;font-size:0.85rem;color:var(--muted)">Constraints: 1 ≤ nums.length ≤ 10<sup>5</sup> &nbsp;·&nbsp; Answer is guaranteed unique &nbsp;·&nbsp; Follow-up: must be better than O(n log n)</p>
+  </div>
+
+  <!-- ── Naive approach ── -->
+  <h2>Step 1 — The Obvious Approach</h2>
+  <p>You already know how to count frequencies (you did it in Valid Anagram and Group Anagrams). So the natural first instinct is:</p>
+
+  <ol style="padding-left:1.5rem;margin-bottom:1rem">
+    <li>Build a frequency map with a dict</li>
+    <li>Sort by frequency descending</li>
+    <li>Return the first <code>k</code> keys</li>
+  </ol>
+
+  <pre><code><span class="kw">def</span> <span class="nm">topKFrequent</span>(self, nums, k):
+    count = {}
+    <span class="kw">for</span> n <span class="kw">in</span> nums:
+        count[n] = count.get(n, <span class="st">0</span>) + <span class="st">1</span>
+    <span class="cm"># sort keys by frequency, highest first</span>
+    <span class="kw">return</span> sorted(count, key=<span class="kw">lambda</span> x: count[x], reverse=<span class="kw2">True</span>)[:k]</code></pre>
+
+  <p>This works. But the follow-up constraint says: <em>do better than O(n log n)</em>. The sort is the bottleneck.</p>
+
+  <table>
+    <tr><th>Approach</th><th>Time</th><th>Space</th></tr>
+    <tr><td>Sort by freq</td><td>O(n log n)</td><td>O(n)</td></tr>
+    <tr><td>Min-heap</td><td>O(n log k)</td><td>O(n + k)</td></tr>
+    <tr><td>Bucket sort ✓</td><td><strong>O(n)</strong></td><td>O(n)</td></tr>
+  </table>
+
+  <!-- ── Key insight ── -->
+  <h2>Step 2 — The Key Insight</h2>
+
+  <div class="callout insight">
+    <div class="callout-title">Core Insight</div>
+    <strong>Frequency is bounded by n.</strong> If the array has n elements, no element can appear more than n times. This means we can use the frequency as an array index — no sort needed.
+  </div>
+
+  <p>Create an array <code>freq</code> of size <code>n + 1</code>, where <code>freq[i]</code> stores all elements that appear exactly <code>i</code> times.</p>
+
+  <p>Then scan from the <em>right</em> (highest frequency) and collect elements until you have <code>k</code>. Done.</p>
+
+  <!-- ── Visual ── -->
+  <h2>Step 3 — Visualize It</h2>
+
+  <p>For <code>nums = [1,1,1,2,2,3]</code>, <code>k = 2</code>:</p>
+
+  <div class="bucket-vis">
+    <div class="vis-label">freq[] — index = frequency, cell = elements with that frequency</div>
+    <div class="buckets">
+      <div class="bucket-col">
+        <div class="bucket-cell">—</div>
+        <div class="bucket-idx">0</div>
+      </div>
+      <div class="bucket-col">
+        <div class="bucket-cell filled">3</div>
+        <div class="bucket-idx">1</div>
+      </div>
+      <div class="bucket-col">
+        <div class="bucket-cell filled">2</div>
+        <div class="bucket-idx">2</div>
+      </div>
+      <div class="bucket-col">
+        <div class="bucket-cell top-k">1</div>
+        <div class="bucket-idx">3</div>
+      </div>
+      <div class="bucket-col">
+        <div class="bucket-cell">—</div>
+        <div class="bucket-idx">4</div>
+      </div>
+      <div class="bucket-col">
+        <div class="bucket-cell">—</div>
+        <div class="bucket-idx">5</div>
+      </div>
+      <div class="bucket-col">
+        <div class="bucket-cell">—</div>
+        <div class="bucket-idx">6</div>
+      </div>
+    </div>
+    <div class="bucket-axis-label">index → frequency (max = n = 6)</div>
+  </div>
+
+  <p>Scanning right-to-left: index 6→5→4→3 gives us <code>1</code> (freq 3). Index 2 gives us <code>2</code> (freq 2). We have k=2 elements. Stop. Return <code>[1, 2]</code>.</p>
+
+  <!-- ── Algorithm ── -->
+  <h2>Step 4 — The Algorithm</h2>
+
+  <pre><code><span class="kw">def</span> <span class="nm">topKFrequent</span>(self, nums, k):
+    count = {}
+    freq = [[] <span class="kw">for</span> _ <span class="kw">in</span> range(len(nums) + <span class="st">1</span>)]  <span class="cm"># ①</span>
+
+    <span class="kw">for</span> n <span class="kw">in</span> nums:
+        count[n] = <span class="st">1</span> + count.get(n, <span class="st">0</span>)          <span class="cm"># ②</span>
+
+    <span class="kw">for</span> n, c <span class="kw">in</span> count.items():
+        freq[c].append(n)                          <span class="cm"># ③</span>
+
+    res = []
+    <span class="kw">for</span> i <span class="kw">in</span> range(len(freq) - <span class="st">1</span>, <span class="st">0</span>, -<span class="st">1</span>):       <span class="cm"># ④</span>
+        <span class="kw">for</span> n <span class="kw">in</span> freq[i]:
+            res.append(n)
+            <span class="kw">if</span> len(res) == k:
+                <span class="kw">return</span> res</code></pre>
+
+  <ul class="anno-list">
+    <li><span class="anno-num">①</span><span>Allocate n+1 buckets. <code>freq[0]</code> unused (no element appears 0 times). Max frequency is n, so freq[n] is the last valid bucket.</span></li>
+    <li><span class="anno-num">②</span><span>Standard frequency count — same pattern from Valid Anagram.</span></li>
+    <li><span class="anno-num">③</span><span>Place each element into the bucket matching its count. Element <code>n</code> with count <code>c</code> goes into <code>freq[c]</code>.</span></li>
+    <li><span class="anno-num">④</span><span>Iterate from high to low frequency, collecting elements until we have k. Early return as soon as we do — no wasted work.</span></li>
+  </ul>
+
+  <div class="callout">
+    <div class="callout-title">Why This Is O(n)</div>
+    No sort. The frequency count pass is O(n). Building freq[] is O(n). The collection pass visits at most n elements total across all buckets. Every step is linear.
+  </div>
+
+  <!-- ── Trace ── -->
+  <h2>Step 5 — Trace It Yourself</h2>
+  <p>Before looking at output, manually trace through <code>nums = [4,4,4,2,2,1]</code>, <code>k = 2</code>:</p>
+  <ol style="padding-left:1.5rem">
+    <li>Build <code>count</code>: what is it?</li>
+    <li>Build <code>freq</code>: what goes in each bucket?</li>
+    <li>Scan right-to-left: what gets collected first? Second?</li>
+  </ol>
+  <p><em>Expected output: <code>[4, 2]</code></em></p>
+
+  <hr class="divider">
+
+  <!-- ── Quiz ── -->
+  <div class="quiz-section">
+    <h2 style="margin-top:0">Retrieval Practice</h2>
+    <p style="font-size:0.88rem;color:var(--muted);margin-bottom:1.5rem">Don't look up. Pull from memory. That's what builds retention.</p>
+
+    <!-- Q1 -->
+    <div class="quiz-q" id="q1">
+      <div class="quiz-prompt">Why do we allocate <code>freq</code> with size <code>len(nums) + 1</code>, not just <code>len(nums)</code>?</div>
+      <div class="options">
+        <button class="opt" onclick="answer(this,'q1',false)">Avoids zero-length list edge case</button>
+        <button class="opt" onclick="answer(this,'q1',true)">Frequency n needs index n, so we need n+1 slots</button>
+        <button class="opt" onclick="answer(this,'q1',false)">Python list indexing is 1-based by default</button>
+        <button class="opt" onclick="answer(this,'q1',false)">Pads for off-by-one in the reverse scan loop</button>
+      </div>
+      <div class="feedback" id="q1-fb"></div>
+    </div>
+
+    <!-- Q2 -->
+    <div class="quiz-q" id="q2">
+      <div class="quiz-prompt">What is the time complexity of bucket sort frequency solution?</div>
+      <div class="options">
+        <button class="opt" onclick="answer(this,'q2',false)">O(n log n) — same as sort</button>
+        <button class="opt" onclick="answer(this,'q2',false)">O(n log k) — better than sort</button>
+        <button class="opt" onclick="answer(this,'q2',true)">O(n) — no comparisons or sorting</button>
+        <button class="opt" onclick="answer(this,'q2',false)">O(k log n) — only k buckets scanned</button>
+      </div>
+      <div class="feedback" id="q2-fb"></div>
+    </div>
+
+    <!-- Q3 -->
+    <div class="quiz-q" id="q3">
+      <div class="quiz-prompt">In the line <code>for i in range(len(freq)-1, 0, -1)</code> — why <code>0</code> as the stop (not <code>-1</code>)?</div>
+      <div class="options">
+        <button class="opt" onclick="answer(this,'q3',false)">Python range stop is exclusive; we want index 1</button>
+        <button class="opt" onclick="answer(this,'q3',true)">Index 0 means "frequency 0" — no element lives there, skip it</button>
+        <button class="opt" onclick="answer(this,'q3',false)">Negative indices wrap around in Python lists</button>
+        <button class="opt" onclick="answer(this,'q3',false)">freq[0] always holds the most common element</button>
+      </div>
+      <div class="feedback" id="q3-fb"></div>
+    </div>
+
+    <!-- Q4 -->
+    <div class="quiz-q" id="q4">
+      <div class="quiz-prompt">For <code>nums = [5,5,4,4,3]</code>, <code>k = 1</code> — what does <code>count</code> look like?</div>
+      <div class="options">
+        <button class="opt" onclick="answer(this,'q4',false)">{5:1, 4:1, 3:1} — three distinct keys</button>
+        <button class="opt" onclick="answer(this,'q4',false)">{5:3, 4:2, 3:1} — ordered by frequency</button>
+        <button class="opt" onclick="answer(this,'q4',true)">{5:2, 4:2, 3:1} — raw frequency per element</button>
+        <button class="opt" onclick="answer(this,'q4',false)">{5:2, 4:2} — 3 excluded, has lowest freq</button>
+      </div>
+      <div class="feedback" id="q4-fb"></div>
+    </div>
+
+  </div>
+
+  <!-- ── Primary Source ── -->
+  <h2>Primary Source</h2>
+  <p><strong>Watch:</strong> <a href="https://www.youtube.com/watch?v=YPTqKIgVk-k" target="_blank">NeetCode — Top K Frequent Elements</a> (8 min). NeetCode walks through exactly this bucket sort approach with clean visuals. Watch after you've attempted the problem yourself.</p>
+
+  <hr class="divider">
+
+  <!-- ── Footer ── -->
+  <div class="footer">
+    <p>Ask your teacher agent anything that's unclear. Drop a message like: <em>"Why can't we just use <code>Counter.most_common(k)</code>?"</em> or <em>"Walk me through what happens when two elements share the same frequency."</em></p>
+    <p style="margin-top:0.5rem">Reference: <a href="../reference/frequency-patterns.html">Frequency Patterns Cheat Sheet</a></p>
+    <a class="next-link" href="#">Next: Encode &amp; Decode Strings →</a>
+  </div>
+
+  <script>
+    const explanations = {
+      q1: "Max element frequency is n (e.g., all elements are the same). That element needs to sit at freq[n]. An array of size n only has indices 0..n-1 — it would be out of bounds.",
+      q2: "Counting is O(n). Building freq[] is O(n). The collection pass touches at most n elements across all buckets. No sorting or heap operations.",
+      q3: "freq[0] would mean 'elements with frequency 0' — impossible. No element can appear 0 times in nums. We skip it. (Also: range stop is exclusive, so stop=0 means we visit indices n down to 1.)",
+      q4: "count is just the raw tally: {5:2, 4:2, 3:1}. We don't filter or order at this stage. Bucket placement happens next."
+    };
+
+    function answer(btn, qid, correct) {
+      const q = document.getElementById(qid);
+      const fb = document.getElementById(qid + '-fb');
+      const opts = q.querySelectorAll('.opt');
+      opts.forEach(o => o.disabled = true);
+      btn.classList.add(correct ? 'correct' : 'wrong');
+      if (!correct) {
+        // highlight correct
+        opts.forEach(o => { if (o.onclick.toString().includes('true')) o.classList.add('correct'); });
+      }
+      fb.textContent = explanations[qid];
+      fb.className = 'feedback ' + (correct ? 'correct' : 'wrong');
+    }
+  </script>
+
+</body>
+</html>

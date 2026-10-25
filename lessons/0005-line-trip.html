@@ -1,0 +1,296 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>0005 · Line Trip</title>
+  <style>
+    :root {
+      --ink: #1a1a1a; --muted: #555; --accent: #2563eb; --green: #16a34a; --red: #dc2626;
+      --bg: #fafaf8; --card: #ffffff; --border: #e5e5e0; --code-bg: #f4f4f0;
+      --highlight: #fef9c3; --hl-border: #ca8a04; --hl-ink: #92400e;
+      --ok-bg: #dcfce7; --bad-bg: #fee2e2;
+    }
+    @media (prefers-color-scheme: dark) {
+      :root {
+        --ink: #e8e6e0; --muted: #9a988f; --accent: #60a5fa; --green: #4ade80; --red: #f87171;
+        --bg: #141413; --card: #1e1e1c; --border: #2e2e2b; --code-bg: #252522;
+        --highlight: #3a3110; --hl-border: #ca8a04; --hl-ink: #fcd34d;
+        --ok-bg: #052e16; --bad-bg: #3b0d0d;
+      }
+    }
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+    body {
+      font-family: Georgia, 'Times New Roman', serif; background: var(--bg); color: var(--ink);
+      line-height: 1.7; padding: 3rem 1.5rem; max-width: 720px; margin: 0 auto;
+    }
+    header { margin-bottom: 2.5rem; border-bottom: 1px solid var(--border); padding-bottom: 1.5rem; }
+    .label { font-family: 'Courier New', monospace; font-size: 0.75rem; color: var(--muted);
+      letter-spacing: 0.1em; text-transform: uppercase; margin-bottom: 0.5rem; }
+    h1 { font-size: 2rem; font-weight: normal; letter-spacing: -0.02em; }
+    h2 { font-size: 1.2rem; margin: 2rem 0 0.75rem; letter-spacing: -0.01em; }
+    h3 { margin: 1.5rem 0 0.5rem; color: var(--muted); text-transform: uppercase;
+      letter-spacing: 0.05em; font-family: sans-serif; font-size: 0.8rem; }
+    p { margin-bottom: 1rem; }
+    ul, ol { margin: 0.5rem 0 1rem 1.5rem; }
+    li { margin-bottom: 0.3rem; }
+    a { color: var(--accent); }
+    code { font-family: 'Courier New', monospace; background: var(--code-bg);
+      padding: 0.15em 0.4em; border-radius: 3px; font-size: 0.9em; }
+    pre { background: var(--code-bg); border: 1px solid var(--border); border-radius: 6px;
+      padding: 1.25rem; overflow-x: auto; margin: 1rem 0 1.5rem; font-size: 0.88rem; line-height: 1.6; }
+    pre code { background: none; padding: 0; }
+    .sub { color: var(--muted); font-family: sans-serif; font-size: 0.9rem; margin-top: 0.5rem; }
+    .small { font-family: sans-serif; font-size: 0.82rem; color: var(--muted); }
+    .insight { background: var(--highlight); border-left: 3px solid var(--hl-border);
+      padding: 0.75rem 1rem; margin: 1.25rem 0; border-radius: 0 4px 4px 0; }
+    .insight strong { color: var(--hl-ink); }
+    hr { border: none; border-top: 1px solid var(--border); margin: 2.5rem 0; }
+    .line-wrap { overflow-x: auto; margin: 1rem 0; }
+    svg text { font-family: 'Courier New', monospace; fill: var(--ink); }
+    .card { background: var(--card); border: 1px solid var(--border); border-radius: 8px;
+      padding: 1.25rem; margin-bottom: 1.25rem; }
+    .complexity { display: flex; gap: 1rem; margin: 1rem 0; flex-wrap: wrap; }
+    .pill { font-family: sans-serif; font-size: 0.75rem; padding: 0.2rem 0.7rem; border-radius: 999px;
+      background: var(--code-bg); border: 1px solid var(--border); color: var(--muted); }
+    .pill strong { color: var(--ink); }
+    .question-text { font-style: italic; margin-bottom: 1rem; }
+    .options { display: grid; gap: 0.5rem; }
+    .option { cursor: pointer; padding: 0.5rem 0.75rem; border-radius: 5px; border: 1px solid var(--border);
+      background: var(--card); color: var(--ink); font-family: 'Courier New', monospace; font-size: 0.88rem; text-align: left; }
+    .option:hover { background: var(--code-bg); }
+    .option.correct { background: var(--ok-bg); border-color: var(--green); color: var(--green); }
+    .option.wrong { background: var(--bad-bg); border-color: var(--red); color: var(--red); }
+    .feedback { margin-top: 0.75rem; font-size: 0.88rem; font-family: sans-serif; min-height: 1.5rem; }
+    .btn { font-family: sans-serif; font-size: 0.85rem; padding: 0.45rem 1.1rem; border-radius: 5px;
+      border: 1px solid var(--border); background: var(--card); color: var(--ink); cursor: pointer; margin-right: 0.5rem; }
+    .btn.primary { background: var(--accent); color: #fff; border-color: var(--accent); }
+    input[type=number] { font-family: 'Courier New', monospace; font-size: 1rem; width: 6rem;
+      padding: 0.35rem 0.5rem; border: 1px solid var(--border); border-radius: 4px;
+      background: var(--code-bg); color: var(--ink); margin-right: 0.5rem; }
+    textarea { width: 100%; height: 170px; font-family: 'Courier New', monospace; font-size: 0.85rem;
+      border: 1px solid var(--border); border-radius: 4px; padding: 0.75rem; resize: vertical;
+      background: var(--code-bg); color: var(--ink); margin: 0.75rem 0; }
+    .row { display: flex; align-items: center; flex-wrap: wrap; gap: 0.5rem; }
+    footer { font-family: sans-serif; font-size: 0.8rem; color: var(--muted); margin-top: 3rem;
+      padding-top: 1.5rem; border-top: 1px solid var(--border); }
+    .nav-links { display: flex; gap: 1.5rem; font-size: 0.82rem; margin-top: 0.5rem; flex-wrap: wrap; }
+  </style>
+</head>
+<body>
+
+<header>
+  <div class="label">Lesson 0005 · Greedy · Codeforces 1901A</div>
+  <h1>Line Trip</h1>
+  <p class="sub">The answer is the longest stretch between refuels. Watch out for the stretch that gets doubled.</p>
+</header>
+
+<h2>The Problem</h2>
+<p>A road runs from point <code>0</code> to point <code>x</code>. You drive <code>0 → x → 0</code>, burning 1 liter per unit. You start with a full tank. Gas stations sit at <code>a₁ &lt; a₂ &lt; … &lt; aₙ</code>, and each one refills you to full. <strong>There are no stations at 0 or at x.</strong> Find the minimum tank size that gets you home.
+<span class="small">(<a href="https://codeforces.com/problemset/problem/1901/A" target="_blank">CF 1901A</a>; 1 ≤ t ≤ 1000, 1 ≤ n ≤ 50, 2 ≤ x ≤ 100.)</span></p>
+
+<div class="line-wrap"><svg id="example-svg" width="640" height="130"></svg></div>
+<p class="small" style="margin-top:-0.5rem">x = 7, stations at 1, 2, 5. Each bar is one stretch between refuels. The red one is the bottleneck.</p>
+
+<hr>
+<h2>The Idea: Bottleneck = Max Stretch</h2>
+<p>You refuel at every station, so no decision is ever made. The tank only has to survive the <em>longest single stretch</em> between two fill-ups. This is the simplest form of greedy: the global answer is a max over local pieces (<a href="https://usaco.guide/bronze/intro-greedy" target="_blank">USACO Guide: Greedy</a>).</p>
+
+<p>List every stretch:</p>
+<ol>
+  <li><code>0 → a₁</code>: length <code>a₁</code>. The full starting tank works like a station at 0.</li>
+  <li><code>aᵢ₋₁ → aᵢ</code>: the gaps between neighboring stations.</li>
+  <li><code>aₙ → x → aₙ</code>: length <strong><code>2·(x − aₙ)</code></strong>. There's nowhere to refuel at x.</li>
+</ol>
+<p>The return trip covers the same gaps in reverse, so it adds nothing new.</p>
+
+<div class="insight">
+  <strong>The one trick:</strong> stretch 3 is the only one that's doubled. Forget the 2 and you fail the very first example (you'd print 3 instead of 4).
+</div>
+
+<h3>Complexity</h3>
+<div class="complexity">
+  <span class="pill">Time: <strong>O(n)</strong> per test</span>
+  <span class="pill">Space: <strong>O(1)</strong> extra</span>
+</div>
+
+<hr>
+<h2>New: Codeforces I/O</h2>
+<p>LeetCode gives you a function to fill in. Codeforces gives you <strong>stdin</strong>: a count <code>t</code>, then <code>t</code> test cases, and you <code>print</code> each answer. Here's the Python skeleton for that:</p>
+<pre><code>import sys
+input = sys.stdin.readline          # much faster than built-in input() on big inputs
+
+for _ in range(int(input())):       # t test cases
+    n, x = map(int, input().split())
+    a = list(map(int, input().split()))
+    # ... solve, then:
+    print(answer)</code></pre>
+<p class="small">See the Python docs for <a href="https://docs.python.org/3/library/sys.html#sys.stdin" target="_blank">sys.stdin</a>. <code>readline</code> keeps the trailing <code>\n</code>, but <code>int()</code> and <code>.split()</code> ignore it, so it's harmless here.</p>
+
+<hr>
+<h2>Drill: Find the Bottleneck</h2>
+<p class="small">Random instances. Work out the tank size in your head, then check. Aim for a streak of 5.</p>
+<div class="card">
+  <div class="line-wrap"><svg id="drill-svg" width="640" height="130"></svg></div>
+  <p id="drill-desc" style="font-family:'Courier New',monospace;font-size:0.9rem"></p>
+  <div class="row">
+    <input type="number" id="drill-in" min="1" placeholder="tank">
+    <button class="btn primary" id="drill-check">Check</button>
+    <button class="btn" id="drill-next">Next</button>
+    <span class="small" id="drill-streak">streak 0</span>
+  </div>
+  <div class="feedback" id="drill-fb"></div>
+</div>
+
+<hr>
+<h2>Quiz</h2>
+<div id="quiz"></div>
+
+<hr>
+<h2>Recall Challenge</h2>
+<p>Close this page. In your editor, write the full submission (I/O plus logic) from memory. Then paste it on the <a href="https://codeforces.com/problemset/problem/1901/A" target="_blank">problem page</a> and submit it for a real verdict.</p>
+<div class="card">
+  <textarea placeholder="import sys
+input = sys.stdin.readline
+# read t
+# per test: read n, x and a
+# ans = max over the three kinds of stretch
+# print(ans)"></textarea>
+  <button class="btn" onclick="document.getElementById('ans').hidden = !document.getElementById('ans').hidden">Reveal answer</button>
+  <div id="ans" hidden>
+<pre style="margin-top:1rem"><code>import sys
+input = sys.stdin.readline
+
+for _ in range(int(input())):
+    n, x = map(int, input().split())
+    a = list(map(int, input().split()))
+    ans = max(a[0], 2 * (x - a[-1]))
+    for i in range(1, n):
+        ans = max(ans, a[i] - a[i - 1])
+    print(ans)</code></pre>
+  </div>
+</div>
+
+<hr>
+<h2>Pattern Connections</h2>
+<ul>
+  <li><strong>Max-gap / bottleneck:</strong> "smallest capacity that survives every segment" usually means max over segments. See <a href="../reference/greedy-patterns.html">greedy patterns reference</a>.</li>
+  <li><strong>When it breaks:</strong> if stations had limited fuel, the check "does capacity V work?" would need a simulation. Feasibility only gets easier as V grows, so you'd binary-search on V. That's binary search on the answer, which comes up later in NC150 (Koko Eating Bananas).</li>
+  <li><strong>Gas Station (NC150 Greedy):</strong> a harder cousin with costs and a circular route. Wait until you reach the Greedy section.</li>
+</ul>
+
+<hr>
+<h2>Primary Source</h2>
+<p><a href="https://usaco.guide/bronze/intro-greedy" target="_blank">USACO Guide: Introduction to Greedy Algorithms</a>. A short read on the greedy mindset, with a practice list. For this exact problem, the problem page links the official editorial under "Tutorial".</p>
+
+<footer>
+  <p>Ask your teacher a follow-up in the terminal, e.g. "why doesn't the return trip add new stretches?", or anything else that's unclear.</p>
+  <div class="nav-links">
+    <a href="0004-valid-sudoku.html">← 0004 Valid Sudoku</a>
+    <a href="../reference/greedy-patterns.html">Reference: Greedy Patterns</a>
+    <a href="0006-halloumi-boxes.html">0006 Halloumi Boxes →</a>
+  </div>
+  <p style="margin-top:1rem">Codeforces side rep · Greedy · 2026-10-25</p>
+</footer>
+
+<script>
+  function solve(x, a) {
+    let ans = Math.max(a[0], 2 * (x - a[a.length - 1]));
+    for (let i = 1; i < a.length; i++) ans = Math.max(ans, a[i] - a[i - 1]);
+    return ans;
+  }
+
+  // Draw the number line plus one bar per refuel stretch; the bottleneck bar is red.
+  function draw(svg, x, a, showBars) {
+    const W = 640, L = 30, R = W - 30, sx = v => L + (R - L) * v / x, y = 40;
+    const css = getComputedStyle(document.documentElement);
+    const ink = css.getPropertyValue('--ink'), muted = css.getPropertyValue('--muted');
+    const red = css.getPropertyValue('--red'), blue = css.getPropertyValue('--accent');
+    let s = `<line x1="${L}" y1="${y}" x2="${R}" y2="${y}" stroke="${muted}" stroke-width="2"/>`;
+    [0, x].forEach(v => s += `<line x1="${sx(v)}" y1="${y-8}" x2="${sx(v)}" y2="${y+8}" stroke="${ink}" stroke-width="2"/><text x="${sx(v)}" y="${y-14}" text-anchor="middle" font-size="12">${v}</text>`);
+    a.forEach(v => s += `<rect x="${sx(v)-6}" y="${y-6}" width="12" height="12" fill="${blue}"/><text x="${sx(v)}" y="${y-14}" text-anchor="middle" font-size="12">${v}</text>`);
+    if (showBars) {
+      const best = solve(x, a);
+      const segs = [[0, a[0], a[0]]];
+      for (let i = 1; i < a.length; i++) segs.push([a[i-1], a[i], a[i] - a[i-1]]);
+      segs.push([a[a.length-1], x, 2 * (x - a[a.length-1])]);
+      segs.forEach(([p, q, len], i) => {
+        const yy = i === segs.length - 1 ? y + 50 : y + 26, c = len === best ? red : muted;
+        s += `<line x1="${sx(p)+2}" y1="${yy}" x2="${sx(q)-2}" y2="${yy}" stroke="${c}" stroke-width="4"/>`;
+        if (i === segs.length - 1) s += `<line x1="${sx(q)-2}" y1="${yy+10}" x2="${sx(p)+2}" y2="${yy+10}" stroke="${c}" stroke-width="4"/>`;
+        s += `<text x="${(sx(p)+sx(q))/2}" y="${yy-5}" text-anchor="middle" font-size="11" style="fill:${c}">${i === segs.length-1 ? '2×' + (q-p) + '=' + len : len}</text>`;
+      });
+    }
+    svg.innerHTML = s;
+  }
+
+  draw(document.getElementById('example-svg'), 7, [1, 2, 5], true);
+
+  // Drill
+  let cur, streak = 0, answered = false;
+  const rnd = (lo, hi) => lo + Math.floor(Math.random() * (hi - lo + 1));
+  function next() {
+    const x = rnd(8, 20), n = rnd(1, 4), set = new Set();
+    while (set.size < n) set.add(rnd(1, x - 1));
+    cur = { x, a: [...set].sort((p, q) => p - q) };
+    answered = false;
+    draw(document.getElementById('drill-svg'), cur.x, cur.a, false);
+    document.getElementById('drill-desc').textContent = `x = ${cur.x}, a = [${cur.a.join(', ')}]`;
+    document.getElementById('drill-fb').textContent = '';
+    const inp = document.getElementById('drill-in'); inp.value = ''; inp.focus();
+  }
+  function check() {
+    if (answered) return;
+    const v = parseInt(document.getElementById('drill-in').value, 10);
+    if (Number.isNaN(v)) return;
+    answered = true;
+    const want = solve(cur.x, cur.a), fb = document.getElementById('drill-fb');
+    draw(document.getElementById('drill-svg'), cur.x, cur.a, true);
+    if (v === want) { streak++; fb.style.color = 'var(--green)'; fb.textContent = `✓ ${want}. The red bar is the bottleneck.`; }
+    else {
+      streak = 0; fb.style.color = 'var(--red)';
+      const last = cur.x - cur.a[cur.a.length - 1];
+      fb.textContent = `✗ Answer is ${want}.` + (v === Math.max(cur.a[0], last, ...cur.a.slice(1).map((p, i) => p - cur.a[i])) ? ' Looks like you forgot to double the last leg.' : ' Check every bar: start leg, gaps, doubled end leg.');
+    }
+    document.getElementById('drill-streak').textContent = 'streak ' + streak;
+  }
+  document.getElementById('drill-check').onclick = check;
+  document.getElementById('drill-next').onclick = next;
+  document.getElementById('drill-in').addEventListener('keydown', e => {
+    if (e.key === 'Enter') answered ? next() : check();
+  });
+  next();
+
+  // Quiz: correct option marked via data, never in visible text
+  const quiz = [
+    { q: 'Q1: x = 10, a = [3, 4, 8]. Minimum tank?', opts: ['3', '4', '5', '8'], c: 1,
+      why: 'Stretches are 3, 1, 4 and 2×(10−8)=4. Max is 4.' },
+    { q: 'Q2: Why is the last stretch doubled?', opts: ['No refuel at x before returning', 'Tank burns double fuel returning', 'Return trip skips every station', 'Problem counts every distance twice'], c: 0,
+      why: 'You pass aₙ, go to x, and must come back to aₙ before you can refuel again.' },
+    { q: 'Q3: x = 10, a = [9]. Minimum tank?', opts: ['2', '9', '10', '18'], c: 1,
+      why: 'The start leg is 9. The end leg is 2×1=2. Don\'t forget the start leg.' },
+    { q: 'Q4: Time complexity per test case?', opts: ['O(n)', 'O(x)', 'O(n²)', 'O(nx)'], c: 0,
+      why: 'One pass over the n stations. Simulating every tank size would cost O(n·x).' },
+  ];
+  const qroot = document.getElementById('quiz');
+  quiz.forEach((item, qi) => {
+    const block = document.createElement('div'); block.className = 'card';
+    block.innerHTML = `<p class="question-text">${item.q}</p><div class="options"></div><div class="feedback"></div>`;
+    const opts = block.querySelector('.options'), fb = block.querySelector('.feedback');
+    item.opts.forEach((o, oi) => {
+      const b = document.createElement('button'); b.className = 'option'; b.textContent = o;
+      b.onclick = () => {
+        if (opts.dataset.done) return; opts.dataset.done = '1';
+        const ok = oi === item.c;
+        b.classList.add(ok ? 'correct' : 'wrong');
+        opts.children[item.c].classList.add('correct');
+        fb.style.color = ok ? 'var(--green)' : 'var(--red)';
+        fb.textContent = (ok ? '✓ ' : '✗ ') + item.why;
+      };
+      opts.appendChild(b);
+    });
+    qroot.appendChild(block);
+  });
+</script>
+</body>
+</html>

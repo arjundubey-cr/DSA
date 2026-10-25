@@ -1,0 +1,83 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>Greedy Patterns — Reference</title>
+  <style>
+    :root {
+      --bg:#fafaf8;--surface:#fff;--border:#e8e6e0;--text:#1a1a1a;--muted:#6b6b6b;
+      --accent:#2563eb;--red:#dc2626;--code-bg:#f4f3ef;
+      --mono:'JetBrains Mono','Fira Code','Courier New',monospace;
+    }
+    @media(prefers-color-scheme:dark){
+      :root{--bg:#141413;--surface:#1e1e1c;--border:#2e2e2b;--text:#e8e6e0;--muted:#8a8880;
+      --accent:#60a5fa;--red:#f87171;--code-bg:#252522;}
+    }
+    *{box-sizing:border-box;margin:0;padding:0}
+    body{background:var(--bg);color:var(--text);font-family:var(--mono);font-size:13px;
+    line-height:1.6;max-width:900px;margin:0 auto;padding:2rem 1.5rem 4rem}
+    h1{font-size:1.1rem;font-weight:700;margin-bottom:0.25rem}
+    .subtitle{color:var(--muted);font-size:0.78rem;margin-bottom:2rem}
+    h2{font-size:0.78rem;text-transform:uppercase;letter-spacing:0.08em;color:var(--muted);
+    margin:2rem 0 0.75rem;padding-bottom:0.3rem;border-bottom:1px solid var(--border)}
+    .grid{display:grid;grid-template-columns:1fr 1fr;gap:1rem}
+    @media(max-width:600px){.grid{grid-template-columns:1fr}}
+    .card{background:var(--surface);border:1px solid var(--border);border-radius:8px;padding:1rem}
+    .card-title{font-weight:700;font-size:0.82rem;margin-bottom:0.5rem;color:var(--accent)}
+    pre{background:var(--code-bg);border-radius:5px;padding:0.75rem;overflow-x:auto;
+    font-size:0.78rem;line-height:1.55;margin:0.5rem 0}
+    ul{margin:0.3rem 0 0.3rem 1.2rem;font-size:0.82rem}
+    .note{color:var(--muted);font-size:0.75rem;margin-top:0.3rem}
+    .warn{color:var(--red);font-weight:700}
+    a{color:var(--accent);text-decoration:none}
+    @media print{body{padding:0}.card{break-inside:avoid}}
+  </style>
+</head>
+<body>
+
+<h1>Greedy Patterns</h1>
+<div class="subtitle">Greedy · Reference Sheet · grows as lessons add patterns</div>
+
+<h2>Max-gap / Bottleneck</h2>
+<div class="grid">
+  <div class="card">
+    <div class="card-title">Recognize</div>
+    <ul>
+      <li>"Minimum capacity / size / range so that every segment fits"</li>
+      <li>Forced refill or reset at known points, so no choices are made</li>
+      <li>Answer = <strong>max over segments</strong></li>
+    </ul>
+    <p class="note"><span class="warn">Trap:</span> segments with no reset at the far end count twice (out and back).</p>
+  </div>
+  <div class="card">
+    <div class="card-title">Line Trip (CF 1901A)</div>
+    <pre>ans = max(a[0], 2 * (x - a[-1]))
+for i in range(1, n):
+    ans = max(ans, a[i] - a[i-1])</pre>
+    <p class="note">O(n) time · O(1) space · <a href="../lessons/0005-line-trip.html">lesson 0005</a></p>
+  </div>
+</div>
+
+<h2>When greedy stops working</h2>
+<div class="card">
+  <ul>
+    <li>Resources are limited (station fuel, costs) → "does V work?" needs a simulation → <strong>binary search on V</strong> if feasibility is monotonic</li>
+    <li>Choices interact (take/skip affects later options) → probably <strong>DP</strong></li>
+    <li>Greedy needs a proof: an exchange argument, or "no choice exists" like the case above</li>
+  </ul>
+</div>
+
+<h2>Codeforces Python I/O skeleton</h2>
+<div class="card">
+<pre>import sys
+input = sys.stdin.readline
+
+for _ in range(int(input())):
+    n, x = map(int, input().split())
+    a = list(map(int, input().split()))
+    print(answer)</pre>
+  <p class="note">Multi-test format: t first, then t cases. readline keeps the '\n'; int() and split() ignore it. For a raw string line use input().strip().</p>
+</div>
+
+</body>
+</html>

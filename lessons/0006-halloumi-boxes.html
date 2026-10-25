@@ -1,0 +1,282 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>0006 · Halloumi Boxes</title>
+  <style>
+    :root {
+      --ink: #1a1a1a; --muted: #555; --accent: #2563eb; --green: #16a34a; --red: #dc2626;
+      --bg: #fafaf8; --card: #ffffff; --border: #e5e5e0; --code-bg: #f4f4f0;
+      --highlight: #fef9c3; --hl-border: #ca8a04; --hl-ink: #92400e;
+      --ok-bg: #dcfce7; --bad-bg: #fee2e2; --sel-bg: #dbeafe;
+    }
+    @media (prefers-color-scheme: dark) {
+      :root {
+        --ink: #e8e6e0; --muted: #9a988f; --accent: #60a5fa; --green: #4ade80; --red: #f87171;
+        --bg: #141413; --card: #1e1e1c; --border: #2e2e2b; --code-bg: #252522;
+        --highlight: #3a3110; --hl-border: #ca8a04; --hl-ink: #fcd34d;
+        --ok-bg: #052e16; --bad-bg: #3b0d0d; --sel-bg: #1e3a5f;
+      }
+    }
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+    body {
+      font-family: Georgia, 'Times New Roman', serif; background: var(--bg); color: var(--ink);
+      line-height: 1.7; padding: 3rem 1.5rem; max-width: 720px; margin: 0 auto;
+    }
+    header { margin-bottom: 2.5rem; border-bottom: 1px solid var(--border); padding-bottom: 1.5rem; }
+    .label { font-family: 'Courier New', monospace; font-size: 0.75rem; color: var(--muted);
+      letter-spacing: 0.1em; text-transform: uppercase; margin-bottom: 0.5rem; }
+    h1 { font-size: 2rem; font-weight: normal; letter-spacing: -0.02em; }
+    h2 { font-size: 1.2rem; margin: 2rem 0 0.75rem; letter-spacing: -0.01em; }
+    h3 { margin: 1.5rem 0 0.5rem; color: var(--muted); text-transform: uppercase;
+      letter-spacing: 0.05em; font-family: sans-serif; font-size: 0.8rem; }
+    p { margin-bottom: 1rem; }
+    ul, ol { margin: 0.5rem 0 1rem 1.5rem; }
+    li { margin-bottom: 0.3rem; }
+    a { color: var(--accent); }
+    code { font-family: 'Courier New', monospace; background: var(--code-bg);
+      padding: 0.15em 0.4em; border-radius: 3px; font-size: 0.9em; }
+    pre { background: var(--code-bg); border: 1px solid var(--border); border-radius: 6px;
+      padding: 1.25rem; overflow-x: auto; margin: 1rem 0 1.5rem; font-size: 0.88rem; line-height: 1.6; }
+    pre code { background: none; padding: 0; }
+    .sub { color: var(--muted); font-family: sans-serif; font-size: 0.9rem; margin-top: 0.5rem; }
+    .small { font-family: sans-serif; font-size: 0.82rem; color: var(--muted); }
+    .insight { background: var(--highlight); border-left: 3px solid var(--hl-border);
+      padding: 0.75rem 1rem; margin: 1.25rem 0; border-radius: 0 4px 4px 0; }
+    .insight strong { color: var(--hl-ink); }
+    hr { border: none; border-top: 1px solid var(--border); margin: 2.5rem 0; }
+    .card { background: var(--card); border: 1px solid var(--border); border-radius: 8px;
+      padding: 1.25rem; margin-bottom: 1.25rem; }
+    .complexity { display: flex; gap: 1rem; margin: 1rem 0; flex-wrap: wrap; }
+    .pill { font-family: sans-serif; font-size: 0.75rem; padding: 0.2rem 0.7rem; border-radius: 999px;
+      background: var(--code-bg); border: 1px solid var(--border); color: var(--muted); }
+    .pill strong { color: var(--ink); }
+    .boxes { display: flex; gap: 0.5rem; flex-wrap: wrap; margin: 1rem 0; }
+    .box { width: 3rem; height: 3rem; display: flex; align-items: center; justify-content: center;
+      border: 2px solid var(--border); border-radius: 6px; background: var(--code-bg); color: var(--ink);
+      font-family: 'Courier New', monospace; font-size: 1.1rem; font-weight: bold; cursor: pointer; }
+    .box.sel { background: var(--sel-bg); border-color: var(--accent); }
+    .box.done { background: var(--ok-bg); border-color: var(--green); color: var(--green); }
+    .question-text { font-style: italic; margin-bottom: 1rem; }
+    .options { display: grid; gap: 0.5rem; }
+    .option { cursor: pointer; padding: 0.5rem 0.75rem; border-radius: 5px; border: 1px solid var(--border);
+      background: var(--card); color: var(--ink); font-family: 'Courier New', monospace; font-size: 0.88rem; text-align: left; }
+    .option:hover { background: var(--code-bg); }
+    .option.correct { background: var(--ok-bg); border-color: var(--green); color: var(--green); }
+    .option.wrong { background: var(--bad-bg); border-color: var(--red); color: var(--red); }
+    .feedback { margin-top: 0.75rem; font-size: 0.88rem; font-family: sans-serif; min-height: 1.5rem; }
+    .btn { font-family: sans-serif; font-size: 0.85rem; padding: 0.45rem 1.1rem; border-radius: 5px;
+      border: 1px solid var(--border); background: var(--card); color: var(--ink); cursor: pointer; margin-right: 0.5rem; }
+    .btn.primary { background: var(--accent); color: #fff; border-color: var(--accent); }
+    textarea { width: 100%; height: 150px; font-family: 'Courier New', monospace; font-size: 0.85rem;
+      border: 1px solid var(--border); border-radius: 4px; padding: 0.75rem; resize: vertical;
+      background: var(--code-bg); color: var(--ink); margin: 0.75rem 0; }
+    .row { display: flex; align-items: center; flex-wrap: wrap; gap: 0.5rem; }
+    .mono { font-family: 'Courier New', monospace; }
+    footer { font-family: sans-serif; font-size: 0.8rem; color: var(--muted); margin-top: 3rem;
+      padding-top: 1.5rem; border-top: 1px solid var(--border); }
+    .nav-links { display: flex; gap: 1.5rem; font-size: 0.82rem; margin-top: 0.5rem; flex-wrap: wrap; }
+  </style>
+</head>
+<body>
+
+<header>
+  <div class="label">Lesson 0006 · Ad hoc observation · Codeforces 1903A</div>
+  <h1>Halloumi Boxes</h1>
+  <p class="sub">Ask what the operation can do at its smallest. A length-2 reversal is a swap, and swaps can sort anything.</p>
+</header>
+
+<h2>The Problem</h2>
+<p>You're given <code>n</code> boxes with numbers <code>a₁…aₙ</code>. One operation reverses any subarray of length <strong>at most <code>k</code></strong>. Can you sort the boxes in non-decreasing order? Print <code>YES</code> or <code>NO</code>.
+<span class="small">(<a href="https://codeforces.com/problemset/problem/1903/A" target="_blank">CF 1903A</a>; 1 ≤ t ≤ 100, 1 ≤ k ≤ n ≤ 100, aᵢ ≤ 10⁹.)</span></p>
+
+<hr>
+<h2>The Idea: Shrink the Operation</h2>
+<p>Don't think about long reversals. Ask what the <em>smallest useful</em> operation is:</p>
+<ul>
+  <li><strong>Length 1:</strong> reversing one element changes nothing.</li>
+  <li><strong>Length 2:</strong> reversing <code>[p, q]</code> gives <code>[q, p]</code>. That's an <strong>adjacent swap</strong>.</li>
+</ul>
+<p>Bubble sort uses nothing except adjacent swaps, and it sorts any array (<a href="https://en.wikipedia.org/wiki/Bubble_sort" target="_blank">Wikipedia: Bubble sort</a>). So:</p>
+
+<div class="insight">
+  <strong>k ≥ 2 → always YES.</strong> &nbsp; <strong>k = 1 → YES only if it's already sorted.</strong>
+</div>
+
+<p>This is an <em>ad hoc</em> problem. There's no named algorithm, just one observation, found by trying tiny cases (<a href="https://usaco.guide/bronze/ad-hoc" target="_blank">USACO Guide: Ad Hoc</a>). Div 2 A problems are often like this.</p>
+
+<h3>Complexity</h3>
+<div class="complexity">
+  <span class="pill">Time: <strong>O(n log n)</strong> with <code>a == sorted(a)</code></span>
+  <span class="pill">or <strong>O(n)</strong> with a pairwise check</span>
+</div>
+<p class="small">With n ≤ 100, both are fine. Write whichever you can't get wrong.</p>
+
+<hr>
+<h2>Feel It: Sort Using Only Short Reversals</h2>
+<p class="small">Click a start box, then an end box. That segment reverses if its length ≤ k. Try k = 2 first. Then switch to k = 1 and see that nothing moves.</p>
+<div class="card">
+  <div class="row">
+    <span class="mono" id="sb-k">k = 2</span>
+    <button class="btn" id="sb-k2">k = 2</button>
+    <button class="btn" id="sb-k1">k = 1</button>
+    <button class="btn" id="sb-new">New array</button>
+  </div>
+  <div class="boxes" id="sb-boxes"></div>
+  <div class="feedback" id="sb-fb"></div>
+</div>
+
+<hr>
+<h2>Drill: YES or NO?</h2>
+<p class="small">Answer fast. A streak of 8 means the rule has stuck.</p>
+<div class="card">
+  <p class="mono" id="dr-desc" style="font-size:0.95rem"></p>
+  <div class="row">
+    <button class="btn" id="dr-yes">YES</button>
+    <button class="btn" id="dr-no">NO&nbsp;</button>
+    <button class="btn primary" id="dr-next">Next</button>
+    <span class="small" id="dr-streak">streak 0</span>
+  </div>
+  <div class="feedback" id="dr-fb"></div>
+</div>
+
+<hr>
+<h2>Quiz</h2>
+<p class="small">Q4 goes back to <a href="0005-line-trip.html">lesson 0005</a> on purpose. Answer it from memory.</p>
+<div id="quiz"></div>
+
+<hr>
+<h2>Recall Challenge</h2>
+<p>Write the full submission from memory, <strong>including the Codeforces I/O</strong> from lesson 0005. No skeleton this time. Then <a href="https://codeforces.com/problemset/problem/1903/A" target="_blank">submit it</a>.</p>
+<div class="card">
+  <textarea placeholder="# from memory: fast input, t loop, read n k and a, print YES/NO"></textarea>
+  <button class="btn" onclick="document.getElementById('ans').hidden = !document.getElementById('ans').hidden">Reveal answer</button>
+  <div id="ans" hidden>
+<pre style="margin-top:1rem"><code>import sys
+input = sys.stdin.readline
+
+for _ in range(int(input())):
+    n, k = map(int, input().split())
+    a = list(map(int, input().split()))
+    print("YES" if k > 1 or a == sorted(a) else "NO")</code></pre>
+  </div>
+</div>
+
+<hr>
+<h2>Pattern Connections</h2>
+<ul>
+  <li><strong>"Shrink the operation":</strong> when a problem offers a big operation, find the smallest version of it. If that's an adjacent swap, every ordering is reachable. See <a href="../reference/ad-hoc-observations.html">ad hoc observations reference</a>.</li>
+  <li><strong>Line Trip (<a href="0005-line-trip.html">0005</a>):</strong> also a one-line answer once you see the observation. That's typical of Div 2 A.</li>
+  <li><strong>Harder versions:</strong> if only reversals of length <em>exactly</em> k were allowed, the answer changes. That's a good question for your teacher.</li>
+</ul>
+
+<hr>
+<h2>Primary Source</h2>
+<p><a href="https://usaco.guide/bronze/ad-hoc" target="_blank">USACO Guide: Ad Hoc Problems</a>. It covers how to find observations: draw small cases and write down what you notice. Read it once and you'll recognize the shape of most Div 2 A problems.</p>
+
+<footer>
+  <p>Ask your teacher a follow-up in the terminal, e.g. "what if reversals must be exactly length k?", or anything else that's unclear.</p>
+  <div class="nav-links">
+    <a href="0005-line-trip.html">← 0005 Line Trip</a>
+    <a href="../reference/ad-hoc-observations.html">Reference: Ad Hoc Observations</a>
+    <a href="../reference/greedy-patterns.html">Reference: Greedy Patterns</a>
+  </div>
+  <p style="margin-top:1rem">Codeforces side rep · Ad hoc · 2026-10-25</p>
+</footer>
+
+<script>
+  const rnd = (lo, hi) => lo + Math.floor(Math.random() * (hi - lo + 1));
+  const isSorted = a => a.every((v, i) => i === 0 || a[i - 1] <= v);
+  const shuffled = n => { let a; do { a = Array.from({ length: n }, () => rnd(1, 9)); } while (isSorted(a)); return a; };
+
+  // Sandbox: reverse segments of length <= k
+  let sb = { k: 2, a: [], pick: null };
+  function sbRender(msg) {
+    const root = document.getElementById('sb-boxes'), done = isSorted(sb.a);
+    root.innerHTML = '';
+    sb.a.forEach((v, i) => {
+      const b = document.createElement('div');
+      b.className = 'box' + (done ? ' done' : '') + (sb.pick === i ? ' sel' : '');
+      b.textContent = v; b.onclick = () => sbClick(i); root.appendChild(b);
+    });
+    document.getElementById('sb-k').textContent = 'k = ' + sb.k;
+    const fb = document.getElementById('sb-fb');
+    if (done) { fb.style.color = 'var(--green)'; fb.textContent = '✓ Sorted.'; }
+    else { fb.style.color = 'var(--muted)'; fb.textContent = msg || ''; }
+  }
+  function sbClick(i) {
+    if (isSorted(sb.a)) return;
+    if (sb.pick === null) { sb.pick = i; return sbRender('Now click the end box.'); }
+    const lo = Math.min(sb.pick, i), hi = Math.max(sb.pick, i), len = hi - lo + 1;
+    sb.pick = null;
+    if (len > sb.k) return sbRender(`Length ${len} > k = ${sb.k}. Not allowed.`);
+    sb.a.splice(lo, len, ...sb.a.slice(lo, hi + 1).reverse());
+    sbRender(len === 1 ? 'Length 1 reversal: nothing changed.' : '');
+  }
+  function sbNew() { sb.a = shuffled(5); sb.pick = null; sbRender(); }
+  document.getElementById('sb-k2').onclick = () => { sb.k = 2; sb.pick = null; sbRender(); };
+  document.getElementById('sb-k1').onclick = () => { sb.k = 1; sb.pick = null; sbRender('k = 1: every allowed reversal does nothing.'); };
+  document.getElementById('sb-new').onclick = sbNew;
+  sbNew();
+
+  // Drill
+  let dr, streak = 0, answered = false;
+  function drNext() {
+    const n = rnd(3, 6);
+    const sorted = Math.random() < 0.35;
+    let a = sorted ? Array.from({ length: n }, () => rnd(1, 9)).sort((p, q) => p - q) : shuffled(n);
+    const k = Math.random() < 0.5 ? 1 : rnd(2, n);
+    dr = { n, k, a, want: k > 1 || isSorted(a) };
+    answered = false;
+    document.getElementById('dr-desc').textContent = `n = ${n}, k = ${k}, a = [${a.join(', ')}]`;
+    document.getElementById('dr-fb').textContent = '';
+  }
+  function drAnswer(yes) {
+    if (answered) return; answered = true;
+    const fb = document.getElementById('dr-fb'), ok = yes === dr.want;
+    streak = ok ? streak + 1 : 0;
+    fb.style.color = ok ? 'var(--green)' : 'var(--red)';
+    const why = dr.k > 1 ? `k = ${dr.k} ≥ 2, so adjacent swaps are allowed. Always YES.`
+      : (isSorted(dr.a) ? 'k = 1, but the array is already non-decreasing. YES.' : 'k = 1 means nothing can move, and the array is unsorted. NO.');
+    fb.textContent = (ok ? '✓ ' : '✗ ') + why;
+    document.getElementById('dr-streak').textContent = 'streak ' + streak;
+  }
+  document.getElementById('dr-yes').onclick = () => drAnswer(true);
+  document.getElementById('dr-no').onclick = () => drAnswer(false);
+  document.getElementById('dr-next').onclick = drNext;
+  drNext();
+
+  // Quiz: correct option marked via data, never in visible text
+  const quiz = [
+    { q: 'Q1: Reversing a subarray of length 2 is the same as…', opts: ['swapping two adjacent elements', 'swapping the first and last', 'rotating the array by one', 'doing nothing to the array'], c: 0,
+      why: '[p, q] reversed is [q, p]. Adjacent swaps are enough to sort, as bubble sort shows.' },
+    { q: 'Q2: n = 5, k = 3, a = [5, 4, 3, 2, 1]. Sortable?', opts: ['YES', 'NO '], c: 0,
+      why: 'k ≥ 2, so the answer is always YES. The actual numbers don\'t matter.' },
+    { q: 'Q3: n = 3, k = 1, a = [1, 1, 2]. Sortable?', opts: ['YES', 'NO '], c: 0,
+      why: 'It\'s already non-decreasing, and equal neighbors are fine. Zero operations needed.' },
+    { q: 'Q4 (from 0005): x = 12, stations at [2, 9]. Minimum tank?', opts: ['6', '7', '8', '14'], c: 1,
+      why: 'The stretches are 2, 7 and 2×(12−9)=6. The max is 7.' },
+  ];
+  const qroot = document.getElementById('quiz');
+  quiz.forEach(item => {
+    const block = document.createElement('div'); block.className = 'card';
+    block.innerHTML = `<p class="question-text">${item.q}</p><div class="options"></div><div class="feedback"></div>`;
+    const opts = block.querySelector('.options'), fb = block.querySelector('.feedback');
+    item.opts.forEach((o, oi) => {
+      const b = document.createElement('button'); b.className = 'option'; b.textContent = o;
+      b.onclick = () => {
+        if (opts.dataset.done) return; opts.dataset.done = '1';
+        const ok = oi === item.c;
+        b.classList.add(ok ? 'correct' : 'wrong');
+        opts.children[item.c].classList.add('correct');
+        fb.style.color = ok ? 'var(--green)' : 'var(--red)';
+        fb.textContent = (ok ? '✓ ' : '✗ ') + item.why;
+      };
+      opts.appendChild(b);
+    });
+    qroot.appendChild(block);
+  });
+</script>
+</body>
+</html>

@@ -1,0 +1,77 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>Ad Hoc Observations — Reference</title>
+  <style>
+    :root {
+      --bg:#fafaf8;--surface:#fff;--border:#e8e6e0;--text:#1a1a1a;--muted:#6b6b6b;
+      --accent:#2563eb;--red:#dc2626;--code-bg:#f4f3ef;
+      --mono:'JetBrains Mono','Fira Code','Courier New',monospace;
+    }
+    @media(prefers-color-scheme:dark){
+      :root{--bg:#141413;--surface:#1e1e1c;--border:#2e2e2b;--text:#e8e6e0;--muted:#8a8880;
+      --accent:#60a5fa;--red:#f87171;--code-bg:#252522;}
+    }
+    *{box-sizing:border-box;margin:0;padding:0}
+    body{background:var(--bg);color:var(--text);font-family:var(--mono);font-size:13px;
+    line-height:1.6;max-width:900px;margin:0 auto;padding:2rem 1.5rem 4rem}
+    h1{font-size:1.1rem;font-weight:700;margin-bottom:0.25rem}
+    .subtitle{color:var(--muted);font-size:0.78rem;margin-bottom:2rem}
+    h2{font-size:0.78rem;text-transform:uppercase;letter-spacing:0.08em;color:var(--muted);
+    margin:2rem 0 0.75rem;padding-bottom:0.3rem;border-bottom:1px solid var(--border)}
+    .grid{display:grid;grid-template-columns:1fr 1fr;gap:1rem}
+    @media(max-width:600px){.grid{grid-template-columns:1fr}}
+    .card{background:var(--surface);border:1px solid var(--border);border-radius:8px;padding:1rem}
+    .card-title{font-weight:700;font-size:0.82rem;margin-bottom:0.5rem;color:var(--accent)}
+    pre{background:var(--code-bg);border-radius:5px;padding:0.75rem;overflow-x:auto;
+    font-size:0.78rem;line-height:1.55;margin:0.5rem 0}
+    ul{margin:0.3rem 0 0.3rem 1.2rem;font-size:0.82rem}
+    .note{color:var(--muted);font-size:0.75rem;margin-top:0.3rem}
+    .warn{color:var(--red);font-weight:700}
+    a{color:var(--accent);text-decoration:none}
+    @media print{body{padding:0}.card{break-inside:avoid}}
+  </style>
+</head>
+<body>
+
+<h1>Ad Hoc Observations</h1>
+<div class="subtitle">Div 2 A/B · Reference Sheet · grows as lessons add observations</div>
+
+<h2>How to hunt for the observation</h2>
+<div class="card">
+  <ul>
+    <li>Try tiny cases by hand: n = 1, 2, 3</li>
+    <li>Shrink the operation to its smallest non-trivial form</li>
+    <li>Ask what <em>never</em> changes (an invariant) and what <em>can</em> change (what's reachable)</li>
+  </ul>
+  <p class="note">Source: <a href="https://usaco.guide/bronze/ad-hoc">USACO Guide · Ad Hoc</a></p>
+</div>
+
+<h2>Adjacent swap ⇒ any permutation</h2>
+<div class="grid">
+  <div class="card">
+    <div class="card-title">Recognize</div>
+    <ul>
+      <li>"Can you sort / reach any order using operation X?"</li>
+      <li>If X can produce an <strong>adjacent swap</strong>, the answer is always YES (bubble sort)</li>
+      <li>If X is a no-op, the array must already be in the target order</li>
+    </ul>
+    <p class="note"><span class="warn">Trap:</span> "at most k" vs "exactly k" are different problems. With exactly k, length 2 isn't available.</p>
+  </div>
+  <div class="card">
+    <div class="card-title">Halloumi Boxes (CF 1903A)</div>
+    <pre>print("YES" if k > 1 or a == sorted(a) else "NO")</pre>
+    <p class="note">O(n log n) · <a href="../lessons/0006-halloumi-boxes.html">lesson 0006</a></p>
+  </div>
+</div>
+
+<h2>Sorted checks in Python</h2>
+<div class="card">
+<pre>a == sorted(a)                                   # O(n log n), can't get wrong
+all(a[i] &lt;= a[i+1] for i in range(len(a) - 1))  # O(n), non-decreasing</pre>
+  <p class="note">Non-decreasing allows equal neighbors: use <code>&lt;=</code>, not <code>&lt;</code>.</p>
+</div>
+
+</body>
+</html>
